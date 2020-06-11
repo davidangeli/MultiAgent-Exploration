@@ -1,6 +1,7 @@
 package main.java.explore;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import main.java.explore.algorithm.Algorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -39,6 +40,8 @@ public class Agent implements Runnable {
         Edge moveOn = algorithm.selectNextStep(this);
         currentNode = moveOn.getOpposite(currentNode);
         algorithm.evaluateOnArrival(this, moveOn);
+        algorithm.labelNode(this, moveOn.getOpposite(currentNode));
+        algorithm.labelNode(this, currentNode);
     }
 
     public void stop() {
@@ -52,5 +55,21 @@ public class Agent implements Runnable {
     @Override
     public String toString() {
         return "Agent" + id;
+    }
+
+    //TODO: better equals and hash, or with lombok
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Agent))
+            return false;
+        Agent other = (Agent) o;
+        return ((Agent) o).id == this.id;
+    }
+
+    @Override
+    public final int hashCode() {
+        return id;
     }
 }

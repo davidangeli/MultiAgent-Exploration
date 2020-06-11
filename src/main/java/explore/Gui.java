@@ -13,7 +13,7 @@ import java.awt.event.WindowEvent;
 public class Gui extends JFrame {
     private JSplitPane splitPane;
 
-    public Gui (Controller controller){
+    public Gui (TestController controller){
         this.setTitle("Multi Agent Graph Exploration");
 
         this.addWindowListener(new WindowAdapter()

@@ -2,7 +2,6 @@ package main.java.explore;
 
 import main.java.explore.algorithm.Algorithm;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
@@ -10,7 +9,7 @@ import javax.swing.JLabel;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Controller implements Runnable {
+public class TestController implements Runnable {
     private final static String STEPCOUNTLABEL = "Step count: ";
     private final Graph graph = new SingleGraph("MultiAgent");
     private final ArrayList<Agent> agents = new ArrayList<>();
@@ -22,7 +21,7 @@ public class Controller implements Runnable {
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public Controller(int agentNum, String graphType, Algorithm algorithm) {
+    public TestController(int agentNum, String graphType, Algorithm algorithm) {
         this.algorithm = algorithm;
         init(graphType, agentNum);
     }
@@ -54,10 +53,15 @@ public class Controller implements Runnable {
 
     @Override
     public void run() {
+        int ticks = 0;
+
         //loop
         while (!stopped.get()){
 
-            if (!paused) tick();
+            if (!paused) {
+                tick();
+                stepCount.setText(STEPCOUNTLABEL + (++ticks));
+            }
 
             try {
                 Thread.sleep(1000);
@@ -70,21 +74,16 @@ public class Controller implements Runnable {
     }
 
     private synchronized void tick () {
-        int ticks = 0;
         AtomicBoolean allDone = new AtomicBoolean(true);
 
-        //remove labels, move agents, set labels
+        //move agents
         agents.forEach(a -> {
             if (!algorithm.agentStops(graph, a)) {
                 allDone.set(false);
-                Node prevNode = a.getCurrentNode();
                 a.move();
-                algorithm.labelNode(prevNode);
-                algorithm.labelNode(a.getCurrentNode());
             }
         });
         stopped.set(allDone.get());
-        stepCount.setText(STEPCOUNTLABEL + (++ticks));
     }
 
     public ViewPanel getNewViewPanel() {

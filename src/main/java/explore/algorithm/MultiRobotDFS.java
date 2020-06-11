@@ -15,12 +15,11 @@ import java.util.stream.Collectors;
  * This algorith uses no agent memory, but storage on each node.
  */
 public class MultiRobotDFS implements Algorithm {
-    public final static int STARTNODEINDEX = 0;
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         //startnode
-        Node startNode = graph.getNode(STARTNODEINDEX);
+        Node startNode = graph.getNode(DEFAULT_START_INDEX);
         GraphManager.setStartNodeStyle(startNode);
         //agents
         for (int i =0; i < agentNum; i++) {
@@ -28,7 +27,7 @@ public class MultiRobotDFS implements Algorithm {
         }
         //reset labels
         graph.getNodeSet().forEach(n -> n.removeAttribute(LABELID));
-        labelNode(startNode);
+        labelNode(null, startNode);
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
         //set edges to gray
@@ -113,7 +112,7 @@ public class MultiRobotDFS implements Algorithm {
     }
 
     @Override
-    public void labelNode(Node node) {
+    public void labelNode(Agent agent, Node node) {
         String label;
         //get storage
         MrDfsStorage store = node.getAttribute(STORAGEID);
@@ -138,7 +137,7 @@ public class MultiRobotDFS implements Algorithm {
         boolean edgesExplored = graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == STARTNODEINDEX;
+        boolean agentHome = agent.getCurrentNode().getIndex() == DEFAULT_START_INDEX;
         return edgesExplored && agentHome;
     }
 
