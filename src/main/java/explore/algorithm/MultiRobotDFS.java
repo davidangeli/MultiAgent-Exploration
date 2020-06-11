@@ -3,6 +3,7 @@ package main.java.explore.algorithm;
 import lombok.Data;
 import main.java.explore.Agent;
 import main.java.explore.EdgeState;
+import main.java.explore.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -14,17 +15,24 @@ import java.util.stream.Collectors;
  * This algorith uses no agent memory, but storage on each node.
  */
 public class MultiRobotDFS implements Algorithm {
+    public final static int STARTNODEINDEX = 0;
 
     @Override
-    public void initGraph(Graph graph) {
+    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
+        //startnode
+        Node startNode = graph.getNode(STARTNODEINDEX);
+        GraphManager.setStartNodeStyle(startNode);
+        //agents
+        for (int i =0; i < agentNum; i++) {
+            agents.add(new Agent(startNode, this));
+        }
+        //reset labels
+        graph.getNodeSet().forEach(n -> n.removeAttribute(LABELID));
+        labelNode(startNode);
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
         //set edges to gray
         graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
-    }
-
-    @Override
-    public void initAgent(Agent agent) {
     }
 
     @Override
@@ -123,6 +131,15 @@ public class MultiRobotDFS implements Algorithm {
         }
 
         node.setAttribute(LABELID, label);
+    }
+
+    @Override
+    public boolean agentStops(Graph graph, Agent agent) {
+        boolean edgesExplored = graph.getEdgeSet()
+                .stream()
+                .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
+        boolean agentHome = agent.getCurrentNode().getIndex() == STARTNODEINDEX;
+        return edgesExplored && agentHome;
     }
 
     public static class MrDfsMemory {

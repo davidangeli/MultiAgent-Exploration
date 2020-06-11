@@ -12,7 +12,6 @@ import java.awt.event.WindowEvent;
 
 public class Gui extends JFrame {
     private JSplitPane splitPane;
-    private final JLabel lblSteps;
 
     public Gui (Controller controller){
         this.setTitle("Multi Agent Graph Exploration");
@@ -32,20 +31,16 @@ public class Gui extends JFrame {
         JPanel settingsPanel = new JPanel();
         //number of robots
         JLabel lblNumberOfRobots = new JLabel("Number of robots");
-        JComboBox<String> txtNumberOfRobots = new JComboBox<>(new String[] {"1", "2", "3"});
+        JComboBox<Integer> txtNumberOfRobots = new JComboBox<>(new Integer[] {1, 2, 3});
         //restart button
         JButton btnRestart = new JButton("Restart");
-        btnRestart.addActionListener(e -> {
-            setSteps(0);
-            controller.reset(Integer.parseInt((String)txtNumberOfRobots.getSelectedItem()));
-        });
+        btnRestart.addActionListener(e -> controller.reset((int)txtNumberOfRobots.getSelectedItem()));
         //generator type
         JLabel lblGeneratorType = new JLabel("Generator type");
         JComboBox<String> cmbGeneratorType = new JComboBox<>(new String[] {"Tutorial", "Random", "Lobster"});
         cmbGeneratorType.addActionListener(e -> {
-            setSteps(0);
-            controller.init((String)cmbGeneratorType.getSelectedItem(), Integer.parseInt((String)txtNumberOfRobots.getSelectedItem()));
-            splitPane.setRightComponent(controller.getViewPanel());
+            controller.init((String)cmbGeneratorType.getSelectedItem(), (int)txtNumberOfRobots.getSelectedItem());
+            splitPane.setRightComponent(controller.getNewViewPanel());
         });
         //next
         JButton btnNextStep = new JButton("Next step");
@@ -57,9 +52,6 @@ public class Gui extends JFrame {
             controller.pause();
         });
 
-        //Step count
-        lblSteps = new JLabel("Step count: ");
-
         settingsPanel.add(lblNumberOfRobots);
         settingsPanel.add(txtNumberOfRobots);
         settingsPanel.add(btnRestart);
@@ -67,15 +59,11 @@ public class Gui extends JFrame {
         settingsPanel.add(cmbGeneratorType);
         settingsPanel.add(btnNextStep);
         settingsPanel.add(btnPause);
-        settingsPanel.add(lblSteps);
+        settingsPanel.add(controller.stepCount);
 
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, settingsPanel, controller.getViewPanel());
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, settingsPanel, controller.getNewViewPanel());
 
         this.add(splitPane, BorderLayout.CENTER);
         //this.add(controller.getViewPanel(), BorderLayout.CENTER);
-    }
-
-    public void setSteps(int s){
-        lblSteps.setText("Step count: " + s);
     }
 }

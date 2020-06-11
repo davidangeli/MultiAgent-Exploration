@@ -23,7 +23,6 @@ public class Agent implements Runnable {
         this.id = ++idc;
         this.algorithm = algorithm;
         this.currentNode = node;
-        algorithm.initAgent(this);
         algorithm.evaluateOnArrival(this, null);
     }
 
