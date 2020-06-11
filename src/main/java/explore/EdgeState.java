@@ -16,7 +16,7 @@ public enum EdgeState {
     }
 
     public void setEdge(Edge edge){
-        edge.addAttribute(Algorithm.EDGESTATELABEL, EdgeState.this);
+        edge.addAttribute(Algorithm.EDGESTATEID, EdgeState.this);
         edge.addAttribute("ui.style", this.style);
     }
 

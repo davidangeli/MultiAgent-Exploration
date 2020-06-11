@@ -3,21 +3,23 @@ package main.java.explore.algorithm;
 import main.java.explore.Agent;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import java.util.concurrent.TimeoutException;
+import org.graphstream.graph.Node;
+
+import javax.print.DocFlavor;
 
 /**
  * Inteface declaring expected methods for any exploration algorithms.
- * @param <S> Type parameter for storage on graph nodes.
- * @param <M> Type parameter for memory of the agents.
  */
-public interface Algorithm<S, M>  {
-    public static final String STORAGELABEL = "storage";
-    public static final String MEMORYLABEL = "memory";
-    public final static String EDGESTATELABEL = "ss";
+public interface Algorithm  {
 
-    public void initGraph (Graph graph);
-    public void initAgent (Agent agent);
-    public void evaluatePosition (Agent agent) throws TimeoutException;
-    public Edge selectNextStep (Agent agent);
+    Object STORELOCK = new Object();
+    String LABELID = "ui.label";
+    String STORAGEID = "storage";
+    String EDGESTATEID = "edgestate";
 
+    void initGraph(Graph graph);
+    void initAgent(Agent agent);
+    void evaluateOnArrival(Agent agent, Edge fromEdge);
+    Edge selectNextStep(Agent agent);
+    void labelNode (Node node);
 }
