@@ -1,12 +1,14 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.Algorithm;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
-import javax.swing.JLabel;
+import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TestController implements Runnable {
@@ -76,13 +78,21 @@ public class TestController implements Runnable {
     private synchronized void tick () {
         AtomicBoolean allDone = new AtomicBoolean(true);
 
-        //move agents
-        agents.forEach(a -> {
-            if (!algorithm.agentStops(graph, a)) {
+        //get next step or stop
+        //this has to be done in a different cycle from the move-evaluation
+        HashMap<Agent, Edge> agentNextStep = new HashMap<>();
+        agents.stream().filter(Agent::isRunning).forEach(a -> {
+            if (algorithm.agentStops(graph, a)) {
+                a.stop();
+            } else {
+                agentNextStep.put(a, algorithm.selectNextStep(a));
                 allDone.set(false);
-                a.move();
             }
         });
+
+        //move agents
+        agents.stream().filter(Agent::isRunning).forEach(a -> a.move(agentNextStep.get(a)));
+
         stopped.set(allDone.get());
     }
 
