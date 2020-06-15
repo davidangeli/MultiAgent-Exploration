@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TestController implements Runnable {
     private final static String STEPCOUNTLABEL = "Step count: ";
     private final Graph graph = new SingleGraph("MultiAgent");
-    private final ArrayList<Agent> agents = new ArrayList<>();
+    private ArrayList<Agent> agents = new ArrayList<>();
     private final Algorithm algorithm;
     private boolean paused = true;
     private Viewer viewer;
@@ -31,8 +31,9 @@ public class TestController implements Runnable {
     public synchronized void reset(int agentNum) {
         //if (!isFinished() || stopped.get()) return;
         paused = true;
-        agents.clear();
-        algorithm.init(graph, agents, agentNum);
+        agents = algorithm.init(graph, agentNum);
+        algorithm.createLabels(graph);
+        algorithm.updateLabels(agents);
         stepCount.setText(STEPCOUNTLABEL);
     }
 
@@ -92,6 +93,8 @@ public class TestController implements Runnable {
 
         //move agents
         agents.stream().filter(Agent::isRunning).forEach(a -> a.move(agentNextStep.get(a)));
+
+        algorithm.updateLabels(agents);
 
         stopped.set(allDone.get());
     }

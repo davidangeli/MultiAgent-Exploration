@@ -16,7 +16,7 @@ public class Agent implements Runnable {
     private final Algorithm algorithm;
     private Object memory;
     private Node currentNode;
-    private volatile boolean running = false, paused = false;
+    private volatile boolean running = true, paused = false;
     private int moves;
 
     public Agent (Node node, Algorithm algorithm) {
@@ -37,8 +37,6 @@ public class Agent implements Runnable {
         moves++;
         currentNode = moveOn.getOpposite(currentNode);
         algorithm.evaluateOnArrival(this, moveOn);
-        algorithm.labelNode(this, moveOn.getOpposite(currentNode));
-        algorithm.labelNode(this, currentNode);
     }
 
     public void stop() {

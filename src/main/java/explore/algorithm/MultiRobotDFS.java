@@ -17,21 +17,21 @@ import java.util.stream.Collectors;
 public class MultiRobotDFS implements Algorithm {
 
     @Override
-    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
+    public ArrayList<Agent> init(Graph graph, int agentNum) {
+        final ArrayList<Agent> agents = new ArrayList<>();
         //startnode
         Node startNode = graph.getNode(DEFAULT_START_INDEX);
         GraphManager.setStartNodeStyle(startNode);
+        //creates storage per Nodes
+        graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
         //agents
         for (int i =0; i < agentNum; i++) {
             agents.add(new Agent(startNode, this));
         }
-        //reset labels
-        graph.getNodeSet().forEach(n -> n.removeAttribute(LABELID));
-        labelNode(null, startNode);
-        //creates storage per Nodes
-        graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
         //set edges to gray
         graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
+
+        return agents;
     }
 
     @Override
@@ -109,27 +109,6 @@ public class MultiRobotDFS implements Algorithm {
             currentVisit.setTo(fromEdge);
             return fromEdge;
         }
-    }
-
-    @Override
-    public void labelNode(Agent agent, Node node) {
-        String label;
-        //get storage
-        MrDfsStorage store = node.getAttribute(STORAGEID);
-        //agent list
-        label = store.stream()
-                .filter(v -> !v.isFinished())
-                .map(v -> v.getAgent().toString())
-                .collect(Collectors.joining(","));
-
-        if (!"".equals(label)) {
-            label += ": " + store.toString();
-        }
-        else {
-            label = node.getId();
-        }
-
-        node.setAttribute(LABELID, label);
     }
 
     @Override
