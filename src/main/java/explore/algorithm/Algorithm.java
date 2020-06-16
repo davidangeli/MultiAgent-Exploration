@@ -23,9 +23,8 @@ public interface Algorithm<M, S>  {
      * Initializes the graph and the agents.
      * @param graph The graph.
      * @param agentNum The number of agents to have.
-     * @return The collection of agents.
      */
-    ArrayList<Agent> init(Graph graph, int agentNum);
+    void init(Graph graph, ArrayList<Agent> agents, int agentNum);
 
     /**
      * Evaluates situation for an agent on a new node.

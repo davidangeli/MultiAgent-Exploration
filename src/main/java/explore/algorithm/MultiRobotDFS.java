@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 public class MultiRobotDFS implements Algorithm<MultiRobotDFS.MrDfsMemory, MultiRobotDFS.MrDfsStorage> {
 
     @Override
-    public ArrayList<Agent> init(Graph graph, int agentNum) {
-        final ArrayList<Agent> agents = new ArrayList<>();
+    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
+        agents.clear();
         //startnode
         Node startNode = graph.getNode(DEFAULT_START_INDEX);
         GraphManager.setStartNodeStyle(startNode);
@@ -30,8 +30,6 @@ public class MultiRobotDFS implements Algorithm<MultiRobotDFS.MrDfsMemory, Multi
         }
         //set edges to gray
         graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
-
-        return agents;
     }
 
     @Override

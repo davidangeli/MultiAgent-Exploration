@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TestController implements Runnable {
+public class TestController<M, S> implements Runnable {
     private final Graph graph = new SingleGraph("MultiAgent");
-    private ArrayList<Agent> agents = new ArrayList<>();
-    private final Algorithm algorithm;
+    private final ArrayList<Agent> agents = new ArrayList<>();
+    private final Algorithm<M, S> algorithm;
     private boolean paused = true;
     private Viewer viewer;
     private Thread thread = new Thread(this);
@@ -22,23 +22,20 @@ public class TestController implements Runnable {
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestController(int agentNum, String graphType, Algorithm algorithm) {
+    public TestController(int agentNum, String graphType, Algorithm<M, S> algorithm) {
         this.algorithm = algorithm;
         init(graphType, agentNum);
     }
 
     public synchronized void reset(int agentNum) {
-        //if (!isFinished() || stopped.get()) return;
         paused = true;
-        //TODO: check unchecked warning
-        agents = algorithm.init(graph, agentNum);
+        algorithm.init(graph, agents, agentNum);
         algorithm.createLabels(graph);
         algorithm.updateLabels(agents);
         stepCount.setText("Step count: 0");
     }
 
     public synchronized void init(String graphType, int r) {
-        //if (!isFinished() || stopped.get()) return;
         GraphManager.createGraph(graph, graphType);
         reset(r);
     }
