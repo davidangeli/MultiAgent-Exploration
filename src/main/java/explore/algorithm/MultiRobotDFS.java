@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * This algorith uses no agent memory, but storage on each node.
  */
-public class MultiRobotDFS implements Algorithm {
+public class MultiRobotDFS implements Algorithm<MultiRobotDFS.MrDfsMemory, MultiRobotDFS.MrDfsStorage> {
 
     @Override
     public ArrayList<Agent> init(Graph graph, int agentNum) {
@@ -150,7 +150,7 @@ public class MultiRobotDFS implements Algorithm {
 
         @Override
         public String toString () {
-            String label = this.agent.toString() + ": ";
+            String label = this.agent.getCode() + ":";
             label += from == null ? "null" : from.getId();
             label += "->";
             label += to == null ? "null" : to.getId();

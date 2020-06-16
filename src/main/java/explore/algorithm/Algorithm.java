@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 /**
  * Inteface declaring expected methods for any exploration algorithms.
  */
-public interface Algorithm  {
+public interface Algorithm<M, S>  {
 
     Object STORELOCK = new Object();
     String LABELID = "ui.label";
@@ -49,10 +49,14 @@ public interface Algorithm  {
      */
     default void createLabels(Graph graph) {
         for (Node node : graph.getNodeSet()) {
-            LinkedHashSet<String> labels = new LinkedHashSet<>();
-            labels.add(node.getId());
-            node.setAttribute(LABELID, labels);
+            createLabel(node);
         }
+    }
+
+    default void createLabel (Node node) {
+        LinkedHashSet<String> labels = new LinkedHashSet<>();
+        labels.add(node.getId());
+        node.setAttribute(LABELID, labels);
     }
 
     /**
@@ -60,12 +64,33 @@ public interface Algorithm  {
      * @param agents The agent list.
      */
     default void updateLabels(ArrayList<Agent> agents) {
+        //get nearby nodes
+        LinkedHashSet<Node> affectedNodes = new LinkedHashSet<>();
         for (Agent agent: agents) {
             Iterator<Node> it = agent.getCurrentNode().getNeighborNodeIterator();
             while (it.hasNext()) {
-                removeLabel(it.next(), agent.toString());
+                affectedNodes.add(it.next());
             }
-            addLabel(agent.getCurrentNode(),agent.toString());
+        }
+
+        //clear labels
+        Iterator<Node> it = affectedNodes.iterator();
+        while (it.hasNext()) {
+            createLabel(it.next());
+        }
+
+        //add agents
+        for (Agent agent: agents) {
+            addLabel(agent.getCurrentNode(), agent.toString());
+        }
+
+        //add storage strings
+        it = affectedNodes.iterator();
+        while (it.hasNext()) {
+            Node node = it.next();
+            S nodeStore = node.getAttribute(STORAGEID);
+            String nodeStoreSting = nodeStore.toString();
+            addLabel(node, nodeStoreSting);
         }
     }
 

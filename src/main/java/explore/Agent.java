@@ -52,6 +52,8 @@ public class Agent implements Runnable {
         return "Agent" + id;
     }
 
+    public String getCode () { return "A" + id; }
+
     //TODO: better equals and hash, or with lombok
     @Override
     public boolean equals(Object o) {

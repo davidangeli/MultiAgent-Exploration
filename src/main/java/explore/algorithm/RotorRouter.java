@@ -10,7 +10,7 @@ import org.graphstream.graph.Node;
 
 import java.util.ArrayList;
 
-public class RotorRouter implements Algorithm {
+public class RotorRouter implements Algorithm<RotorRouter.RRMemory, RotorRouter.RRStorage> {
 
     @Override
     public ArrayList<Agent> init(Graph graph, int agentNum) {

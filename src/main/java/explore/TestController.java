@@ -12,14 +12,13 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TestController implements Runnable {
-    private final static String STEPCOUNTLABEL = "Step count: ";
     private final Graph graph = new SingleGraph("MultiAgent");
     private ArrayList<Agent> agents = new ArrayList<>();
     private final Algorithm algorithm;
     private boolean paused = true;
     private Viewer viewer;
     private Thread thread = new Thread(this);
-    public final JLabel stepCount = new JLabel(STEPCOUNTLABEL);
+    public final JLabel stepCount = new JLabel();
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
@@ -31,10 +30,11 @@ public class TestController implements Runnable {
     public synchronized void reset(int agentNum) {
         //if (!isFinished() || stopped.get()) return;
         paused = true;
+        //TODO: check unchecked warning
         agents = algorithm.init(graph, agentNum);
         algorithm.createLabels(graph);
         algorithm.updateLabels(agents);
-        stepCount.setText(STEPCOUNTLABEL);
+        stepCount.setText("Step count: 0");
     }
 
     public synchronized void init(String graphType, int r) {
@@ -56,14 +56,12 @@ public class TestController implements Runnable {
 
     @Override
     public void run() {
-        int ticks = 0;
 
         //loop
         while (!stopped.get()){
 
             if (!paused) {
                 tick();
-                stepCount.setText(STEPCOUNTLABEL + (++ticks));
             }
 
             try {
@@ -72,8 +70,7 @@ public class TestController implements Runnable {
                 //TODO log
             }
         }
-        stopped.set(true);
-        System.out.println("Graph explored! " + stepCount.getText());
+
     }
 
     private synchronized void tick () {
@@ -94,9 +91,15 @@ public class TestController implements Runnable {
         //move agents
         agents.stream().filter(Agent::isRunning).forEach(a -> a.move(agentNextStep.get(a)));
 
+        //update labels if
         algorithm.updateLabels(agents);
+        showStepCount();
 
-        stopped.set(allDone.get());
+        //check finished state
+        if (allDone.get()) {
+            stopped.set(true);
+            System.out.println("Graph explored! " + stepCount.getText());
+        }
     }
 
     public ViewPanel getNewViewPanel() {
@@ -104,6 +107,13 @@ public class TestController implements Runnable {
         viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
         viewer.enableAutoLayout();
         return viewer.addDefaultView(false);
+    }
+
+    //TODO: think this over again
+    private void showStepCount() {
+        String t = stepCount.getText().split(" ")[2];
+        int i = Integer.parseInt(t) + 1;
+        stepCount.setText(stepCount.getText().replace(t, Integer.toString(i)));
     }
 
     public synchronized void pause() {
