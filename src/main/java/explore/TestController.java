@@ -55,8 +55,7 @@ public class TestController<M, S> implements Runnable {
     public void run() {
 
         //loop
-        while (!stopped.get()){
-
+        while (!stopped.get()) {
             if (!paused) {
                 tick();
             }
@@ -67,7 +66,6 @@ public class TestController<M, S> implements Runnable {
                 //TODO log
             }
         }
-
     }
 
     private synchronized void tick () {
