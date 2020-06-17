@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestController<M, S> implements Runnable {
     private final Graph graph = new SingleGraph("MultiAgent");
@@ -19,10 +21,12 @@ public class TestController<M, S> implements Runnable {
     private Viewer viewer;
     private Thread thread = new Thread(this);
     public final JLabel stepCount = new JLabel();
+    private static final Logger logger = Logger.getLogger(TestController.class.getName());
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
     public TestController(int agentNum, String graphType, Algorithm<M, S> algorithm) {
+        logger.setUseParentHandlers(true);
         this.algorithm = algorithm;
         init(graphType, agentNum);
     }
@@ -66,6 +70,7 @@ public class TestController<M, S> implements Runnable {
                 //TODO log
             }
         }
+        logger.log(Level.INFO, "Finished.");
     }
 
     private synchronized void tick () {

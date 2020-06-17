@@ -13,7 +13,7 @@ import java.util.logging.*;
 public class Main {
     private static final String CONFIGFILE = "config.properties";
     private static final Properties properties = new Properties();
-    public static final Logger logger = Logger.getLogger(Main.class.getName());
+    public static final Logger logger = Logger.getLogger("");
 
     public static void main(String[] args) {
 
@@ -21,7 +21,7 @@ public class Main {
         try {
             properties.load(new FileInputStream(CONFIGFILE));
         } catch (IOException ex) {
-            logger.log(Level.WARNING, "Application: Error while reading properties file. Application quits.");
+            logger.log(Level.WARNING, "Error while reading properties file. Application quits.");
             return;
         }
 
@@ -29,16 +29,19 @@ public class Main {
         try {
             setLogging();
         } catch (IOException | SecurityException ex) {
-            logger.log(Level.WARNING, "Application: Log file cannot be opened. Application quits.");
-            endLogging(logger);
+            logger.log(Level.WARNING, "Log file cannot be opened. Application quits.");
+            endLogging();
             return;
         }
 
-        logger.log(Level.INFO, "Application: Setup finished.");
+        logger.log(Level.INFO, "Setup finished.");
 
-        TestController<RotorRouter.RRMemory, RotorRouter.RRStorage> controller;
-        controller = new TestController<>(2,"Tutorial", new RotorRouter());
-        Gui frame = new Gui(controller);
+//        TestController<RotorRouter.RRMemory, RotorRouter.RRStorage> controller1;
+//        controller1 = new TestController<>(2,"Tutorial", new RotorRouter());
+        TestController<MultiRobotDFS.MrDfsMemory, MultiRobotDFS.MrDfsStorage> controller2;
+        controller2 = new TestController<>(2,"Tutorial", new MultiRobotDFS());
+
+        Gui frame = new Gui(controller2);
         frame.setVisible(true);
     }
 
@@ -50,33 +53,39 @@ public class Main {
         //filehandler
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        logger.setUseParentHandlers(false);
         FileHandler fh = new FileHandler(path + str + sdf.format(date) + ".log");
 
         //formatter
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy:MM:dd  HH:mm:ss");
-        fh.setFormatter(new SimpleFormatter() {
-            private final String LINE_SEPARATOR = System.getProperty("line.separator");
+        SimpleFormatter sf = new SimpleFormatter() {
             @Override
             public String format(LogRecord record) {
+                String LINE_SEPARATOR = System.getProperty("line.separator");
+                String FQER = "main.java.explore.";
+
                 StringBuilder sb = new StringBuilder();
                 sb.append(sdf2.format(new Date(record.getMillis())));
                 sb.append("\t");
-                sb.append(record.getSourceClassName());
-                sb.append(":\t");
                 sb.append(record.getLevel());
+                sb.append("\t");
+                sb.append(record.getSourceClassName().replace(FQER,""));
                 sb.append(":\t");
                 sb.append(record.getMessage());
                 sb.append(LINE_SEPARATOR);
                 return sb.toString();
             }
-        });
+        };
+
         logger.addHandler(fh);
+
+        for (Handler handler : logger.getHandlers()) {
+            handler.setFormatter(sf);
+        }
 
         logger.setLevel(Level.parse(properties.getProperty("app.loglevel")));
     }
 
-    private static void endLogging(Logger logger) {
+    private static void endLogging() {
         for (Handler handler : logger.getHandlers()) {
             handler.close();
         }
