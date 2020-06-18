@@ -1,7 +1,6 @@
 package main.java.explore;
 
 import lombok.Data;
-import main.java.explore.algorithm.Algorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -13,17 +12,14 @@ import org.graphstream.graph.Node;
 public class Agent implements Runnable {
     protected static int idc;
     private final int id;
-    private final Algorithm algorithm;
     private Object memory;
     private Node currentNode;
     private volatile boolean running = true, paused = false;
     private int moves;
 
-    public Agent (Node node, Algorithm algorithm) {
+    public Agent (Node node) {
         this.id = ++idc;
-        this.algorithm = algorithm;
         this.currentNode = node;
-        algorithm.evaluateOnArrival(this, null);
     }
 
     @Override
@@ -36,7 +32,6 @@ public class Agent implements Runnable {
     public void move(Edge moveOn) {
         moves++;
         currentNode = moveOn.getOpposite(currentNode);
-        algorithm.evaluateOnArrival(this, moveOn);
     }
 
     public void stop() {

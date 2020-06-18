@@ -22,8 +22,9 @@ public class RotorRouter implements Algorithm {
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new RRStorage()));
         //agents
         for (int i =0; i < agentNum; i++) {
-            Agent agent = new Agent(startNode, this);
+            Agent agent = new Agent(startNode);
             agents.add(agent);
+            evaluateOnArrival(agent, null);
         }
         //set edges to gray
         graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);

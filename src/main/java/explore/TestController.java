@@ -89,7 +89,11 @@ public class TestController implements Runnable {
         });
 
         //move agents
-        agents.stream().filter(Agent::isRunning).forEach(a -> a.move(agentNextStep.get(a)));
+        agents.stream().filter(Agent::isRunning).forEach(a -> {
+            Edge moveOn = agentNextStep.get(a);
+            a.move(moveOn);
+            algorithm.evaluateOnArrival(a, moveOn);
+        });
 
         //update labels if
         algorithm.updateLabels(agents);

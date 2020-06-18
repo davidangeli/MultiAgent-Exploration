@@ -26,7 +26,9 @@ public class MultiRobotDFS implements Algorithm {
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
         //agents
         for (int i =0; i < agentNum; i++) {
-            agents.add(new Agent(startNode, this));
+            Agent agent = new Agent(startNode);
+            agents.add(agent);
+            evaluateOnArrival(agent, null);
         }
         //set edges to gray
         graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
