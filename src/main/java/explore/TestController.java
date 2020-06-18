@@ -13,10 +13,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TestController<M, S> implements Runnable {
+public class TestController implements Runnable {
     private final Graph graph = new SingleGraph("MultiAgent");
     private final ArrayList<Agent> agents = new ArrayList<>();
-    private final Algorithm<M, S> algorithm;
+    private final Algorithm algorithm;
     private boolean paused = true;
     private Viewer viewer;
     private Thread thread = new Thread(this);
@@ -25,7 +25,7 @@ public class TestController<M, S> implements Runnable {
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestController(int agentNum, String graphType, Algorithm<M, S> algorithm) {
+    public TestController(int agentNum, String graphType, Algorithm algorithm) {
         logger.setUseParentHandlers(true);
         this.algorithm = algorithm;
         init(graphType, agentNum);

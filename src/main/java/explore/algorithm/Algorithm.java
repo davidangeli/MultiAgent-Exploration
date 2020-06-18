@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 /**
  * Inteface declaring expected methods for any exploration algorithms.
  */
-public interface Algorithm<M, S>  {
+public interface Algorithm  {
 
     Object STORELOCK = new Object();
     String LABELID = "ui.label";
@@ -87,8 +87,7 @@ public interface Algorithm<M, S>  {
         it = affectedNodes.iterator();
         while (it.hasNext()) {
             Node node = it.next();
-            S nodeStore = node.getAttribute(STORAGEID);
-            String nodeStoreSting = nodeStore.toString();
+            String nodeStoreSting = node.getAttribute(STORAGEID).toString();
             addLabel(node, nodeStoreSting);
         }
     }
@@ -112,4 +111,7 @@ public interface Algorithm<M, S>  {
      * @return True or false.
      */
     boolean agentStops(Graph graph, Agent agent);
+
+    Class<?> getMemoryClass();
+    Class<?> getStorageClass();
 }

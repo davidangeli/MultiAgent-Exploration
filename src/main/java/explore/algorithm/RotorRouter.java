@@ -10,7 +10,7 @@ import org.graphstream.graph.Node;
 
 import java.util.ArrayList;
 
-public class RotorRouter implements Algorithm<RotorRouter.RRMemory, RotorRouter.RRStorage> {
+public class RotorRouter implements Algorithm {
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
@@ -58,6 +58,16 @@ public class RotorRouter implements Algorithm<RotorRouter.RRMemory, RotorRouter.
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.VISITED);
         boolean agentHome = agent.getCurrentNode().getIndex() == DEFAULT_START_INDEX;
         return edgesExplored && agentHome;
+    }
+
+    @Override
+    public Class<?> getMemoryClass() {
+        return RRMemory.class;
+    }
+
+    @Override
+    public Class<?> getStorageClass() {
+        return RRStorage.class;
     }
 
     public static class RRMemory {

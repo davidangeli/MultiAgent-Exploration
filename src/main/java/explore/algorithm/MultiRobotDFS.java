@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * This algorith uses no agent memory, but storage on each node.
  */
-public class MultiRobotDFS implements Algorithm<MultiRobotDFS.MrDfsMemory, MultiRobotDFS.MrDfsStorage> {
+public class MultiRobotDFS implements Algorithm {
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
@@ -116,6 +116,16 @@ public class MultiRobotDFS implements Algorithm<MultiRobotDFS.MrDfsMemory, Multi
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
         boolean agentHome = agent.getCurrentNode().getIndex() == DEFAULT_START_INDEX;
         return edgesExplored && agentHome;
+    }
+
+    @Override
+    public Class<?> getMemoryClass() {
+        return MrDfsMemory.class;
+    }
+
+    @Override
+    public Class<?> getStorageClass() {
+        return MrDfsStorage.class;
     }
 
     public static class MrDfsMemory {

@@ -36,10 +36,8 @@ public class Main {
 
         logger.log(Level.INFO, "Setup finished.");
 
-//        TestController<RotorRouter.RRMemory, RotorRouter.RRStorage> controller1;
-//        controller1 = new TestController<>(2,"Tutorial", new RotorRouter());
-        TestController<MultiRobotDFS.MrDfsMemory, MultiRobotDFS.MrDfsStorage> controller2;
-        controller2 = new TestController<>(2,"Tutorial", new MultiRobotDFS());
+        //TestController controller1 = new TestController<>(2,"Tutorial", new RotorRouter());
+        TestController controller2 = new TestController(2,"Tutorial", new MultiRobotDFS());
 
         Gui frame = new Gui(controller2);
         frame.setVisible(true);
