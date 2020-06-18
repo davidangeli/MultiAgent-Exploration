@@ -61,16 +61,6 @@ public class RotorRouter implements Algorithm {
         return edgesExplored && agentHome;
     }
 
-    @Override
-    public Class<?> getMemoryClass() {
-        return RRMemory.class;
-    }
-
-    @Override
-    public Class<?> getStorageClass() {
-        return RRStorage.class;
-    }
-
     public static class RRMemory {
     }
 

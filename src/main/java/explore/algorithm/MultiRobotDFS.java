@@ -120,16 +120,6 @@ public class MultiRobotDFS implements Algorithm {
         return edgesExplored && agentHome;
     }
 
-    @Override
-    public Class<?> getMemoryClass() {
-        return MrDfsMemory.class;
-    }
-
-    @Override
-    public Class<?> getStorageClass() {
-        return MrDfsStorage.class;
-    }
-
     public static class MrDfsMemory {
     }
 

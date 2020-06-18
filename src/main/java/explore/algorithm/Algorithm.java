@@ -63,6 +63,7 @@ public interface Algorithm  {
      * @param agents The agent list.
      */
     default void updateLabels(ArrayList<Agent> agents) {
+        //TODO: fix this
         //get nearby nodes
         LinkedHashSet<Node> affectedNodes = new LinkedHashSet<>();
         for (Agent agent: agents) {
@@ -111,7 +112,4 @@ public interface Algorithm  {
      * @return True or false.
      */
     boolean agentStops(Graph graph, Agent agent);
-
-    Class<?> getMemoryClass();
-    Class<?> getStorageClass();
 }
