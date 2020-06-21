@@ -4,8 +4,6 @@ import main.java.explore.algorithm.Algorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.ViewPanel;
-import org.graphstream.ui.view.Viewer;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +16,6 @@ public class TestController implements Runnable {
     private final ArrayList<Agent> agents = new ArrayList<>();
     private final Algorithm algorithm;
     private boolean paused = true;
-    private Viewer viewer;
     private Thread thread = new Thread(this);
     public final JLabel stepCount = new JLabel();
     private static final Logger logger = Logger.getLogger(TestController.class.getName());
@@ -106,11 +103,8 @@ public class TestController implements Runnable {
         }
     }
 
-    public ViewPanel getNewViewPanel() {
-        if (viewer != null) viewer.close();
-        viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-        viewer.enableAutoLayout();
-        return viewer.addDefaultView(false);
+    public Graph getGraph () {
+        return graph;
     }
 
     //TODO: think this over again

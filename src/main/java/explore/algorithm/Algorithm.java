@@ -63,7 +63,7 @@ public interface Algorithm  {
      * @param agents The agent list.
      */
     default void updateLabels(ArrayList<Agent> agents) {
-        //TODO: fix this
+        //TODO: fix this: sometimes agents get to the end
         //get nearby nodes
         LinkedHashSet<Node> affectedNodes = new LinkedHashSet<>();
         for (Agent agent: agents) {

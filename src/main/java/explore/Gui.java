@@ -1,34 +1,45 @@
 package main.java.explore;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
+import org.graphstream.ui.view.Viewer;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Gui extends JFrame {
-    private JSplitPane splitPane;
+    private final TestController controller;
+    private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    public Gui (TestController controller){
+    public Gui (TestController controller) {
         this.setTitle("Multi Agent Graph Exploration");
+        this.controller = controller;
 
-        this.addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e) {
-                controller.stopped.set(true);
-            }
+        setControlPanel();
+        setNewGraphViewPanel();
+
+        //close event
+        this.addWindowListener(
+                new WindowAdapter() {
+                    public void windowClosing(WindowEvent e) {
+                        controller.stopped.set(true);
+                    }
         });
 
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(800, 800);
         this.setLocationRelativeTo(null);
 
-        //settings panel
-        JPanel settingsPanel = new JPanel();
+        this.add(splitPane, BorderLayout.CENTER);
+    }
+    
+    private void setNewGraphViewPanel () {
+        Viewer viewer = new Viewer(controller.getGraph(), Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+        viewer.enableAutoLayout();
+        splitPane.setRightComponent(viewer.addDefaultView(false));
+    }
+    
+    private void setControlPanel () {
         //number of robots
         JLabel lblNumberOfRobots = new JLabel("Number of robots");
         JComboBox<Integer> txtNumberOfRobots = new JComboBox<>(new Integer[] {1, 2, 3});
@@ -40,7 +51,7 @@ public class Gui extends JFrame {
         JComboBox<String> cmbGeneratorType = new JComboBox<>(new String[] {"Tutorial", "Random", "Lobster"});
         cmbGeneratorType.addActionListener(e -> {
             controller.init((String)cmbGeneratorType.getSelectedItem(), (int)txtNumberOfRobots.getSelectedItem());
-            splitPane.setRightComponent(controller.getNewViewPanel());
+            setNewGraphViewPanel();
         });
         //next
         JButton btnNextStep = new JButton("Next step");
@@ -48,22 +59,20 @@ public class Gui extends JFrame {
         //start-stop
         JButton btnPause = new JButton("Start / stop");
         btnPause.addActionListener(e -> {
-            if (!controller.isRunning()) controller.start();
-            controller.pause();
+        if (!controller.isRunning()) controller.start();
+        controller.pause();
         });
 
-        settingsPanel.add(lblNumberOfRobots);
-        settingsPanel.add(txtNumberOfRobots);
-        settingsPanel.add(btnRestart);
-        settingsPanel.add(lblGeneratorType);
-        settingsPanel.add(cmbGeneratorType);
-        settingsPanel.add(btnNextStep);
-        settingsPanel.add(btnPause);
-        settingsPanel.add(controller.stepCount);
+        JPanel controlPanel = new JPanel();
+        controlPanel.add(lblNumberOfRobots);
+        controlPanel.add(txtNumberOfRobots);
+        controlPanel.add(btnRestart);
+        controlPanel.add(lblGeneratorType);
+        controlPanel.add(cmbGeneratorType);
+        controlPanel.add(btnNextStep);
+        controlPanel.add(btnPause);
+        controlPanel.add(controller.stepCount);
 
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, settingsPanel, controller.getNewViewPanel());
-
-        this.add(splitPane, BorderLayout.CENTER);
-        //this.add(controller.getViewPanel(), BorderLayout.CENTER);
+        splitPane.setLeftComponent(controlPanel);
     }
 }
