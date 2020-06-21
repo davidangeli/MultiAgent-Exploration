@@ -12,6 +12,7 @@ import java.util.logging.*;
 
 public class Main {
     private static final String CONFIGFILE = "/config.properties";
+    public final static int GUIGRAPHSIZE = 10;
     private static final Properties properties = new Properties();
     public static final Logger logger = Logger.getLogger("");
 
@@ -38,7 +39,7 @@ public class Main {
 
         TestCase controller;
         //controller = new TestController(2,"Tutorial", new RotorRouter(), true);
-        controller = new TestCase(GraphType.TUTORIAL, new MultiRobotDFS(),2,true);
+        controller = new TestCase(GraphType.TUTORIAL, GUIGRAPHSIZE, new MultiRobotDFS(),2,true);
         Gui frame = new Gui(controller);
         frame.setVisible(true);
     }

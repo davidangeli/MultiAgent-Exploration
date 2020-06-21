@@ -3,6 +3,7 @@ package main.java.explore;
 import main.java.explore.algorithm.Algorithm;
 import main.java.explore.algorithm.MultiRobotDFS;
 import main.java.explore.algorithm.RotorRouter;
+import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 
 import java.io.IOException;
@@ -16,9 +17,6 @@ import java.util.stream.Stream;
 public class TestManager {
     private static final String ROTORROUTERCODE = "rr";
     private static final String MULTIROBOTDFSCODE = "mrdfs";
-    private static final String GRAPHTUTORIALCODE = "Tutorial";
-    private static final String GRAPHRANDOMCODE = "Random";
-    private static final String GRAPHLOBSTERCODE = "Lobster";
 
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
     private static final ArrayList<TestCase> testCases = new ArrayList<>();
@@ -32,10 +30,11 @@ public class TestManager {
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             stream.forEach((line) -> {
                 Scanner sc = new Scanner (line);
-                GraphType graphType = selectGraphType(sc.next());
+                GraphType graphType = GraphManager.getGraphType(sc.next());
+                int graphSize = sc.nextInt();
                 Algorithm algorithm = selectAlgorithm(sc.next());
                 int agentNum = sc.nextInt();
-                testCases.add(new TestCase(graphType, algorithm, agentNum, false));
+                testCases.add(new TestCase(graphType, graphSize, algorithm, agentNum, false));
             });
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Test cases file could not be opened.");
@@ -58,18 +57,5 @@ public class TestManager {
                 throw new IllegalArgumentException();
         }
         return result;
-    }
-
-    private static GraphType selectGraphType (String argument) throws IllegalArgumentException {
-        switch (argument) {
-            case GRAPHTUTORIALCODE:
-                return GraphType.TUTORIAL;
-            case GRAPHRANDOMCODE:
-                return GraphType.RANDOM;
-            case GRAPHLOBSTERCODE:
-                return GraphType.LOBSTER;
-            default:
-                throw new IllegalArgumentException();
-        }
     }
 }

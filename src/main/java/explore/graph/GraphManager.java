@@ -7,42 +7,28 @@ import org.graphstream.graph.implementations.SingleGraph;
 
 public class GraphManager {
 
-    public static Graph getGraph(String graphTypeString, int size) throws IllegalArgumentException {
+    public static Graph getGraph(GraphType graphType, int graphSize) throws IllegalArgumentException {
         Graph graph = new SingleGraph("MultiAgent");
-
-        for (GraphType graphType : GraphType.values()) {
-            if (graphTypeString.equals(graphType.code)) {
-                createGraph(graph, graphType, size);
-                return graph;
-            }
-        }
-        throw new IllegalArgumentException();
+        resetGraph(graph, graphType, graphSize);
+        return graph;
     }
 
-    public static void createGraph (Graph graph, GraphType graphType) {
-        createGraph(graph, graphType, 10);
-    }
-
-    public static void createGraph (Graph graph, GraphType graphType, int size) {
+    public static void resetGraph (Graph graph, GraphType graphType, int graphSize) {
         graph.clear();
         Generator gen = graphType.generator;
-        int depth;
         switch (graphType)
         {
             case TUTORIAL:
                 createTutorialGraph(graph);
                 return;
             case LOBSTER:
-                depth = 10;
-                break;
             case RANDOM:
             default:
-                depth = 10;
                 break;
         }
         gen.addSink(graph);
         gen.begin();
-        for(int i=0; i<depth; i++)
+        for(int i=0; i < graphSize; i++)
             gen.nextEvents();
         gen.end();
     }
@@ -64,5 +50,15 @@ public class GraphManager {
         graph.addEdge("CD", "C", "D" ,false);
         graph.addEdge("DE", "D", "E" ,false);
         graph.addEdge("DF", "D", "F" ,false);
+    }
+
+    public static GraphType getGraphType (String graphTypeString) throws IllegalArgumentException {
+        for (GraphType gt : GraphType.values()) {
+            if (gt.code.equals(graphTypeString)) {
+                return  gt;
+            }
+        }
+
+        throw new IllegalArgumentException();
     }
 }

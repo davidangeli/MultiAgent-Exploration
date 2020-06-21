@@ -5,7 +5,6 @@ import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TestCase implements Callable<Integer> {
-    private final Graph graph = new SingleGraph("MultiAgent");
+    private final Graph graph;
     private final ArrayList<Agent> agents = new ArrayList<>();
     private final Algorithm algorithm;
     private boolean paused = true;
@@ -25,10 +24,11 @@ public class TestCase implements Callable<Integer> {
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestCase(GraphType graphType, Algorithm algorithm, int agentNum, boolean runsInGui) {
+    public TestCase(GraphType graphType, int graphSize, Algorithm algorithm, int agentNum, boolean runsInGui) {
+        this.graph = GraphManager.getGraph(graphType, graphSize);
         this.algorithm = algorithm;
         this.runsInGui = runsInGui;
-        init(graphType, agentNum);
+        reset(agentNum);
     }
 
     public synchronized void reset(int agentNum) {
@@ -42,9 +42,9 @@ public class TestCase implements Callable<Integer> {
         }
     }
 
-    public synchronized void init(GraphType graphType, int r) {
-        GraphManager.createGraph(graph, graphType);
-        reset(r);
+    public synchronized void init(GraphType graphType, int graphSize, int agentNum) {
+        GraphManager.resetGraph(graph, graphType, graphSize);
+        reset(agentNum);
     }
 
     public boolean isRunning() {
