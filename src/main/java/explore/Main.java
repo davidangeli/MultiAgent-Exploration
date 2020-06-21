@@ -36,10 +36,11 @@ public class Main {
 
         logger.log(Level.INFO, "Setup finished.");
 
-        //TestController controller1 = new TestController<>(2,"Tutorial", new RotorRouter());
-        TestController controller2 = new TestController(2,"Tutorial", new MultiRobotDFS());
+        TestController controller;
+        //controller = new TestController(2,"Tutorial", new RotorRouter(), true);
+        controller = new TestController(2,"Tutorial", new MultiRobotDFS(), false);
 
-        Gui frame = new Gui(controller2);
+        Gui frame = new Gui(controller);
         frame.setVisible(true);
     }
 

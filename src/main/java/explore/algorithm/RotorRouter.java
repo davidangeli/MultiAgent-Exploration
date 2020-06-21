@@ -18,7 +18,7 @@ public class RotorRouter implements Algorithm {
         //startnode
         Node startNode = graph.getNode(DEFAULT_START_INDEX);
         GraphManager.setStartNodeStyle(startNode);
-        //reset labels, add agent set, storage
+        //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new RRStorage()));
         //agents
         for (int i =0; i < agentNum; i++) {

@@ -17,23 +17,28 @@ public class TestController implements Runnable {
     private final Algorithm algorithm;
     private boolean paused = true;
     private Thread thread = new Thread(this);
-    public final JLabel stepCount = new JLabel();
+    public final JLabel stepCount = new JLabel("Step count: 0");
     private static final Logger logger = Logger.getLogger(TestController.class.getName());
+    private final boolean runsInGui;
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestController(int agentNum, String graphType, Algorithm algorithm) {
+    public TestController(int agentNum, String graphType, Algorithm algorithm, boolean runsInGui) {
         logger.setUseParentHandlers(true);
         this.algorithm = algorithm;
+        this.runsInGui = runsInGui;
         init(graphType, agentNum);
     }
 
     public synchronized void reset(int agentNum) {
         paused = true;
         algorithm.init(graph, agents, agentNum);
-        algorithm.createLabels(graph);
-        algorithm.updateLabels(agents);
-        stepCount.setText("Step count: 0");
+
+        if (runsInGui) {
+            algorithm.createLabels(graph);
+            algorithm.updateLabels(agents);
+            showStepCount(true);
+        }
     }
 
     public synchronized void init(String graphType, int r) {
@@ -67,7 +72,7 @@ public class TestController implements Runnable {
                 //TODO log
             }
         }
-        logger.log(Level.INFO, "Finished.");
+        logger.log(Level.INFO, "Run finished.");
     }
 
     private synchronized void tick () {
@@ -93,8 +98,10 @@ public class TestController implements Runnable {
         });
 
         //update labels if
-        algorithm.updateLabels(agents);
-        showStepCount();
+        if (runsInGui) {
+            algorithm.updateLabels(agents);
+            showStepCount(false);
+        }
 
         //check finished state
         if (allDone.get()) {
@@ -107,11 +114,18 @@ public class TestController implements Runnable {
         return graph;
     }
 
-    //TODO: think this over again
-    private void showStepCount() {
-        String t = stepCount.getText().split(" ")[2];
-        int i = Integer.parseInt(t) + 1;
-        stepCount.setText(stepCount.getText().replace(t, Integer.toString(i)));
+    //TODO: think this over again, esp if we'll have a counter
+    private void showStepCount(boolean reset) {
+        if (!runsInGui) { return; }
+
+        String oldI = stepCount.getText().split(" ")[2];
+        //reset
+        int newI = 0;
+        //update
+        if (!reset) {
+            newI = Integer.parseInt(oldI) + 1;
+        }
+        stepCount.setText(stepCount.getText().replace(oldI, Integer.toString(newI)));
     }
 
     public synchronized void pause() {
