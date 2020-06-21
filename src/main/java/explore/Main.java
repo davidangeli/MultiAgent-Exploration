@@ -38,7 +38,7 @@ public class Main {
 
         TestController controller;
         //controller = new TestController(2,"Tutorial", new RotorRouter(), true);
-        controller = new TestController(2,"Tutorial", new MultiRobotDFS(), false);
+        controller = new TestController(2,"Tutorial", new MultiRobotDFS(), true);
 
         Gui frame = new Gui(controller);
         frame.setVisible(true);

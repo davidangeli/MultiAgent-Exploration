@@ -5,6 +5,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
@@ -65,8 +66,9 @@ public interface Algorithm  {
     default void updateLabels(ArrayList<Agent> agents) {
         //TODO: fix this: sometimes agents get to the end
         //get nearby nodes
-        LinkedHashSet<Node> affectedNodes = new LinkedHashSet<>();
+        HashSet<Node> affectedNodes = new HashSet<>();
         for (Agent agent: agents) {
+            affectedNodes.add(agent.getCurrentNode());
             Iterator<Node> it = agent.getCurrentNode().getNeighborNodeIterator();
             while (it.hasNext()) {
                 affectedNodes.add(it.next());
@@ -96,12 +98,6 @@ public interface Algorithm  {
     default void addLabel(Node node, String label) {
         LinkedHashSet<String> labels = node.getAttribute(LABELID);
         labels.add(label);
-        node.setAttribute(LABELID, labels);
-    }
-
-    default void removeLabel(Node node, String label) {
-        LinkedHashSet<String> labels = node.getAttribute(LABELID);
-        labels.remove(label);
         node.setAttribute(LABELID, labels);
     }
 
