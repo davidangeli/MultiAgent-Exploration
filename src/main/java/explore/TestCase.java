@@ -1,6 +1,8 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.Algorithm;
+import main.java.explore.graph.GraphManager;
+import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -23,7 +25,7 @@ public class TestCase implements Callable<Integer> {
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestCase(String graphType, Algorithm algorithm, int agentNum, boolean runsInGui) {
+    public TestCase(GraphType graphType, Algorithm algorithm, int agentNum, boolean runsInGui) {
         this.algorithm = algorithm;
         this.runsInGui = runsInGui;
         init(graphType, agentNum);
@@ -40,7 +42,7 @@ public class TestCase implements Callable<Integer> {
         }
     }
 
-    public synchronized void init(String graphType, int r) {
+    public synchronized void init(GraphType graphType, int r) {
         GraphManager.createGraph(graph, graphType);
         reset(r);
     }

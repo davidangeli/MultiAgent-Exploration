@@ -1,5 +1,6 @@
 package main.java.explore;
 
+import main.java.explore.graph.GraphType;
 import org.graphstream.ui.view.Viewer;
 
 import javax.swing.*;
@@ -8,12 +9,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Gui extends JFrame {
-    private final TestCase controller;
+    private final TestCase testCase;
     private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    public Gui (TestCase controller) {
+    public Gui (TestCase testCase) {
         this.setTitle("Multi Agent Graph Exploration");
-        this.controller = controller;
+        this.testCase = testCase;
 
         setControlPanel();
         setNewGraphViewPanel();
@@ -22,7 +23,7 @@ public class Gui extends JFrame {
         this.addWindowListener(
                 new WindowAdapter() {
                     public void windowClosing(WindowEvent e) {
-                        controller.stopped.set(true);
+                        testCase.stopped.set(true);
                     }
         });
 
@@ -34,7 +35,7 @@ public class Gui extends JFrame {
     }
     
     private void setNewGraphViewPanel () {
-        Viewer viewer = new Viewer(controller.getGraph(), Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+        Viewer viewer = new Viewer(testCase.getGraph(), Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
         viewer.enableAutoLayout();
         splitPane.setRightComponent(viewer.addDefaultView(false));
     }
@@ -45,22 +46,25 @@ public class Gui extends JFrame {
         JComboBox<Integer> txtNumberOfRobots = new JComboBox<>(new Integer[] {1, 2, 3});
         //restart button
         JButton btnRestart = new JButton("Restart");
-        btnRestart.addActionListener(e -> controller.reset((int)txtNumberOfRobots.getSelectedItem()));
+        btnRestart.addActionListener(e -> testCase.reset((int)txtNumberOfRobots.getSelectedItem()));
         //generator type
         JLabel lblGeneratorType = new JLabel("Generator type");
-        JComboBox<String> cmbGeneratorType = new JComboBox<>(new String[] {"Tutorial", "Random", "Lobster"});
+        JComboBox<GraphType> cmbGeneratorType = new JComboBox<>();
+        cmbGeneratorType.addItem(GraphType.TUTORIAL);
+        cmbGeneratorType.addItem(GraphType.RANDOM);
+        cmbGeneratorType.addItem(GraphType.LOBSTER);
         cmbGeneratorType.addActionListener(e -> {
-            controller.init((String)cmbGeneratorType.getSelectedItem(), (int)txtNumberOfRobots.getSelectedItem());
+            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), (int)txtNumberOfRobots.getSelectedItem());
             setNewGraphViewPanel();
         });
         //next
         JButton btnNextStep = new JButton("Next step");
-        btnNextStep.addActionListener(e -> controller.tickOne());
+        btnNextStep.addActionListener(e -> testCase.tickOne());
         //start-stop
         JButton btnPause = new JButton("Start / stop");
         btnPause.addActionListener(e -> {
-        if (!controller.isRunning()) controller.start();
-        controller.pause();
+        if (!testCase.isRunning()) testCase.start();
+        testCase.pause();
         });
 
         JPanel controlPanel = new JPanel();
@@ -71,7 +75,7 @@ public class Gui extends JFrame {
         controlPanel.add(cmbGeneratorType);
         controlPanel.add(btnNextStep);
         controlPanel.add(btnPause);
-        controlPanel.add(controller.stepCount);
+        controlPanel.add(testCase.stepCount);
 
         splitPane.setLeftComponent(controlPanel);
     }

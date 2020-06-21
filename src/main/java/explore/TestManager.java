@@ -3,6 +3,7 @@ package main.java.explore;
 import main.java.explore.algorithm.Algorithm;
 import main.java.explore.algorithm.MultiRobotDFS;
 import main.java.explore.algorithm.RotorRouter;
+import main.java.explore.graph.GraphType;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +32,7 @@ public class TestManager {
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             stream.forEach((line) -> {
                 Scanner sc = new Scanner (line);
-                String graphType = selectGraphType(sc.next());
+                GraphType graphType = selectGraphType(sc.next());
                 Algorithm algorithm = selectAlgorithm(sc.next());
                 int agentNum = sc.nextInt();
                 testCases.add(new TestCase(graphType, algorithm, agentNum, false));
@@ -59,17 +60,16 @@ public class TestManager {
         return result;
     }
 
-    private static String selectGraphType (String argument) throws IllegalArgumentException {
+    private static GraphType selectGraphType (String argument) throws IllegalArgumentException {
         switch (argument) {
             case GRAPHTUTORIALCODE:
-                break;
+                return GraphType.TUTORIAL;
             case GRAPHRANDOMCODE:
-                break;
+                return GraphType.RANDOM;
             case GRAPHLOBSTERCODE:
-                break;
+                return GraphType.LOBSTER;
             default:
                 throw new IllegalArgumentException();
         }
-        return argument;
     }
 }

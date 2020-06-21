@@ -1,6 +1,7 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.MultiRobotDFS;
+import main.java.explore.graph.GraphType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ public class Main {
 
         TestCase controller;
         //controller = new TestController(2,"Tutorial", new RotorRouter(), true);
-        controller = new TestCase("Tutorial", new MultiRobotDFS(),2,true);
+        controller = new TestCase(GraphType.TUTORIAL, new MultiRobotDFS(),2,true);
         Gui frame = new Gui(controller);
         frame.setVisible(true);
     }

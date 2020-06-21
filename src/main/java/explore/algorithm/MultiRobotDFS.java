@@ -2,8 +2,8 @@ package main.java.explore.algorithm;
 
 import lombok.Data;
 import main.java.explore.Agent;
-import main.java.explore.EdgeState;
-import main.java.explore.GraphManager;
+import main.java.explore.graph.EdgeState;
+import main.java.explore.graph.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;

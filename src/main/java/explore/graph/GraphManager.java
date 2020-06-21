@@ -1,32 +1,44 @@
-package main.java.explore;
+package main.java.explore.graph;
 
 import org.graphstream.algorithm.generator.Generator;
-import org.graphstream.algorithm.generator.LobsterGenerator;
-import org.graphstream.algorithm.generator.RandomGenerator;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.SingleGraph;
 
 public class GraphManager {
 
-    public static void createGraph (Graph graph, String graphType){
+    public static Graph getGraph(String graphTypeString, int size) throws IllegalArgumentException {
+        Graph graph = new SingleGraph("MultiAgent");
+
+        for (GraphType graphType : GraphType.values()) {
+            if (graphTypeString.equals(graphType.code)) {
+                createGraph(graph, graphType, size);
+                return graph;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    public static void createGraph (Graph graph, GraphType graphType) {
+        createGraph(graph, graphType, 10);
+    }
+
+    public static void createGraph (Graph graph, GraphType graphType, int size) {
         graph.clear();
-        Generator gen;
+        Generator gen = graphType.generator;
         int depth;
         switch (graphType)
         {
-            case "Tutorial":
+            case TUTORIAL:
                 createTutorialGraph(graph);
                 return;
-            case "Lobster":
-                gen = new LobsterGenerator();
-                depth = 50;
+            case LOBSTER:
+                depth = 10;
                 break;
-            case "Random":
+            case RANDOM:
             default:
-                gen = new RandomGenerator(4, false, false);
-                depth = 3;
+                depth = 10;
                 break;
-
         }
         gen.addSink(graph);
         gen.begin();
