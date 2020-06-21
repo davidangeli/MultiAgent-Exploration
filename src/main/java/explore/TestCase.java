@@ -7,24 +7,23 @@ import org.graphstream.graph.implementations.SingleGraph;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class TestController implements Runnable {
+public class TestCase implements Callable<Integer> {
     private final Graph graph = new SingleGraph("MultiAgent");
     private final ArrayList<Agent> agents = new ArrayList<>();
     private final Algorithm algorithm;
     private boolean paused = true;
-    private Thread thread = new Thread(this);
+    private Thread thread = new Thread();
     public final JLabel stepCount = new JLabel("Step count: 0");
-    private static final Logger logger = Logger.getLogger(TestController.class.getName());
+    private int statistics;
+
     private final boolean runsInGui;
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestController(int agentNum, String graphType, Algorithm algorithm, boolean runsInGui) {
-        logger.setUseParentHandlers(true);
+    public TestCase(String graphType, Algorithm algorithm, int agentNum, boolean runsInGui) {
         this.algorithm = algorithm;
         this.runsInGui = runsInGui;
         init(graphType, agentNum);
@@ -52,31 +51,35 @@ public class TestController implements Runnable {
 
     public synchronized void start() {
         if (!stopped.get()) return;
-        thread = new Thread(this);
+        thread = new Thread(()->{
+            try {
+                this.call();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         stopped.set(false);
         thread.start();
     }
 
     @Override
-    public void run() {
+    public Integer call() throws Exception {
 
         //loop
         while (!stopped.get()) {
             if (!paused) {
                 tick();
             }
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                //TODO log
-            }
+            //InterruptedException is propagated
+            Thread.sleep(1000);
         }
-        logger.log(Level.INFO, "Run finished.");
+
+        return statistics;
     }
 
     private synchronized void tick () {
         AtomicBoolean allDone = new AtomicBoolean(true);
+        statistics++;
 
         //get next step or stop
         //this has to be done in a different cycle from the move-evaluation

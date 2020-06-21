@@ -1,25 +1,24 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.MultiRobotDFS;
-import main.java.explore.algorithm.RotorRouter;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.*;
 
 public class Main {
-    private static final String CONFIGFILE = "config.properties";
+    private static final String CONFIGFILE = "/config.properties";
     private static final Properties properties = new Properties();
     public static final Logger logger = Logger.getLogger("");
 
     public static void main(String[] args) {
 
         //get Properties
-        try {
-            properties.load(new FileInputStream(CONFIGFILE));
+        try (InputStream inputStream = Main.class.getResourceAsStream(CONFIGFILE)) {
+            properties.load(inputStream);
         } catch (IOException ex) {
             logger.log(Level.WARNING, "Error while reading properties file. Application quits.");
             return;
@@ -36,10 +35,9 @@ public class Main {
 
         logger.log(Level.INFO, "Setup finished.");
 
-        TestController controller;
+        TestCase controller;
         //controller = new TestController(2,"Tutorial", new RotorRouter(), true);
-        controller = new TestController(2,"Tutorial", new MultiRobotDFS(), true);
-
+        controller = new TestCase("Tutorial", new MultiRobotDFS(),2,true);
         Gui frame = new Gui(controller);
         frame.setVisible(true);
     }

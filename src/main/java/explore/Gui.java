@@ -8,10 +8,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Gui extends JFrame {
-    private final TestController controller;
+    private final TestCase controller;
     private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    public Gui (TestController controller) {
+    public Gui (TestCase controller) {
         this.setTitle("Multi Agent Graph Exploration");
         this.controller = controller;
 

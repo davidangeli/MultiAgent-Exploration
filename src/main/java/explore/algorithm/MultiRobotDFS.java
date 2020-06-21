@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This algorith uses no agent memory, but storage on each node.
+ * This algorithm uses no agent memory, but storage on each node.
  */
 public class MultiRobotDFS implements Algorithm {
 
