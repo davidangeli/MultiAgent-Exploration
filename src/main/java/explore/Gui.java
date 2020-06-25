@@ -54,7 +54,7 @@ public class Gui extends JFrame {
         cmbGeneratorType.addItem(GraphType.RANDOM);
         cmbGeneratorType.addItem(GraphType.LOBSTER);
         cmbGeneratorType.addActionListener(e -> {
-            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), Main.GUIGRAPHSIZE, (int)txtNumberOfRobots.getSelectedItem());
+            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), Main.GUI_GRAPHSIZE, (int)txtNumberOfRobots.getSelectedItem());
             setNewGraphViewPanel();
         });
         //next

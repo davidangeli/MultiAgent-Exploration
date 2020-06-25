@@ -12,7 +12,9 @@ import java.util.logging.*;
 
 public class Main {
     private static final String CONFIGFILE = "/config.properties";
-    public final static int GUIGRAPHSIZE = 10;
+    private static final String DEFAULT_INPUT_FILE = "input.txt";
+    private static final String DEFAULT_OUTPUT_FILE = "output.txt";
+    public final static int GUI_GRAPHSIZE = 10;
     private static final Properties properties = new Properties();
     public static final Logger logger = Logger.getLogger("");
 
@@ -22,7 +24,7 @@ public class Main {
         try (InputStream inputStream = Main.class.getResourceAsStream(CONFIGFILE)) {
             properties.load(inputStream);
         } catch (IOException ex) {
-            logger.log(Level.WARNING, "Error while reading properties file. Application quits.");
+            logger.log(Level.INFO, "Error while reading properties file. Application quits.");
             return;
         }
 
@@ -37,11 +39,18 @@ public class Main {
 
         logger.log(Level.INFO, "Setup finished.");
 
-        TestCase controller;
-        //controller = new TestController(2,"Tutorial", new RotorRouter(), true);
-        controller = new TestCase(GraphType.TUTORIAL, GUIGRAPHSIZE, new MultiRobotDFS(),2,true);
-        Gui frame = new Gui(controller);
-        frame.setVisible(true);
+        if (args.length == 0) {
+            TestCase testCase;
+            testCase = new TestCase(GraphType.TUTORIAL, GUI_GRAPHSIZE, new MultiRobotDFS(),2,true);
+            Gui frame = new Gui(testCase);
+            frame.setVisible(true);
+            logger.log(Level.WARNING, "Graphical interface started.");
+        }
+        else {
+            int timeout = Integer.parseInt(properties.getProperty("testcase.timeout"));
+            TestManager testManager = new TestManager(DEFAULT_INPUT_FILE, timeout);
+            logger.log(Level.INFO, "TestManager created.");
+        }
     }
 
     private static void setLogging() throws SecurityException, IOException {

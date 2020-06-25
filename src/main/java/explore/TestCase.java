@@ -22,7 +22,7 @@ public class TestCase implements Callable<Integer> {
 
     private final boolean runsInGui;
 
-    public AtomicBoolean stopped = new AtomicBoolean(true);
+    public AtomicBoolean stopped = new AtomicBoolean(false);
 
     public TestCase(GraphType graphType, int graphSize, Algorithm algorithm, int agentNum, boolean runsInGui) {
         this.graph = GraphManager.getGraph(graphType, graphSize);
@@ -32,7 +32,7 @@ public class TestCase implements Callable<Integer> {
     }
 
     public synchronized void reset(int agentNum) {
-        paused = true;
+        paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
 
         if (runsInGui) {
@@ -73,7 +73,10 @@ public class TestCase implements Callable<Integer> {
                 tick();
             }
             //InterruptedException is propagated
-            Thread.sleep(1000);
+            //TODO: put into loop
+            if (runsInGui) {
+                Thread.sleep(1000);
+            }
         }
 
         return statistics;
@@ -111,7 +114,7 @@ public class TestCase implements Callable<Integer> {
         //check finished state
         if (allDone.get()) {
             stopped.set(true);
-            System.out.println("Graph explored! " + stepCount.getText());
+            //System.out.println("Graph explored! " + statistics);
         }
     }
 
