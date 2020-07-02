@@ -47,14 +47,14 @@ public class TestManager {
     }
 
     private void printResults() {
-        testCases.forEach((tc,f) -> {
+        testCases.forEach((tc, f) -> {
             String result = "exception";
             try {
                 result = f.isDone() ? f.get().toString() : "timeout";
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-            logger.log(Level.INFO, "Test case {0} results: {1} "+ result);
+            logger.log(Level.INFO, "Test case: {0} results: {1} ", new Object[]{tc, result});
         });
     }
 
@@ -67,10 +67,10 @@ public class TestManager {
                 }
                 try {
                     testCases.put(parseInputLine(line), null);
-                    logger.log(Level.INFO, "Test case created: {0}", line);
+                    logger.log(Level.INFO, "Test case created: {0}", new Object[]{line});
                 }
                 catch (Exception ex) {
-                    logger.log(Level.WARNING, "Test cases file line parse error: {0}", line);
+                    logger.log(Level.WARNING, "Test cases file line parse error: {0}", new Object[]{line});
                 }
             });
         } catch (IOException e) {

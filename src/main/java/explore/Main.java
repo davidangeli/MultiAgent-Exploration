@@ -78,7 +78,14 @@ public class Main {
                 sb.append("\t");
                 sb.append(record.getSourceClassName().replace(FQER,""));
                 sb.append(":\t");
-                sb.append(record.getMessage());
+                String message = record.getMessage();
+                Object[] parameters= record.getParameters();
+                if (parameters != null) {
+                    for (int i = 0; i < parameters.length; i++) {
+                        message = message.replace("{"+i+"}", parameters[i].toString());
+                    }
+                }
+                sb.append(message);
                 sb.append(LINE_SEPARATOR);
                 return sb.toString();
             }

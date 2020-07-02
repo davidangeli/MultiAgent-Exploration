@@ -1,3 +1,4 @@
 # graphtype graphsize   algorithm_code agent_num
 lobster 20 mrdfs 2
 random 20 mrdfs 2
+random 30 mrdfs 2
