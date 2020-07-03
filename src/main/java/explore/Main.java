@@ -44,7 +44,7 @@ public class Main {
             testCase = new TestCase(GraphType.TUTORIAL, GUI_GRAPHSIZE, new MultiRobotDFS(),2,true);
             Gui frame = new Gui(testCase);
             frame.setVisible(true);
-            logger.log(Level.WARNING, "Graphical interface started.");
+            logger.log(Level.INFO, "Graphical interface started.");
         }
         else {
             int timeout = Integer.parseInt(properties.getProperty("testcase.timeout"));

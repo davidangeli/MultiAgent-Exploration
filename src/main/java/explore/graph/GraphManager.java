@@ -15,6 +15,8 @@ public class GraphManager {
 
     public static void resetGraph (Graph graph, GraphType graphType, int graphSize) {
         graph.clear();
+        graph.setStrict(true);
+        graph.setAutoCreate(false);
         Generator gen = graphType.generator;
         switch (graphType)
         {
@@ -38,12 +40,8 @@ public class GraphManager {
     }
 
     private static void createTutorialGraph(Graph graph) {
-        graph.addNode("A" );
-        graph.addNode("B" );
-        graph.addNode("C" );
-        graph.addNode("D" );
-        graph.addNode("E" );
-        graph.addNode("F" );
+        graph.setStrict(false);
+        graph.setAutoCreate( true );
         graph.addEdge("AB", "A", "B" ,false);
         graph.addEdge("BC", "B", "C" ,false);
         graph.addEdge("CA", "C", "A" ,false);
