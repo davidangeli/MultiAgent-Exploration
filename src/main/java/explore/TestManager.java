@@ -70,7 +70,7 @@ public class TestManager {
                     logger.log(Level.INFO, "Test case created: {0}", new Object[]{line});
                 }
                 catch (Exception ex) {
-                    logger.log(Level.WARNING, "Test cases file line parse error: {0}", new Object[]{line});
+                    logger.log(Level.WARNING, "Test cases parse error: {0}: {1}", new Object[]{line, ex.getMessage()});
                 }
             });
         } catch (IOException e) {

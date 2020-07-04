@@ -17,7 +17,7 @@ public class GraphManager {
         graph.clear();
         graph.setStrict(true);
         graph.setAutoCreate(false);
-        Generator gen = graphType.generator;
+        Generator gen = graphType.getGenerator();
         switch (graphType)
         {
             case TUTORIAL:

@@ -5,15 +5,28 @@ import org.graphstream.algorithm.generator.LobsterGenerator;
 import org.graphstream.algorithm.generator.RandomGenerator;
 
 public enum GraphType {
-    TUTORIAL ("tutorial", null),
-    RANDOM ("random", new RandomGenerator(4, false, false)),
-    LOBSTER ("lobster", new LobsterGenerator());
+    TUTORIAL ("tutorial"),
+    RANDOM ("random"),
+    LOBSTER ("lobster");
 
     public final String code;
-    public final Generator generator;
 
-    GraphType(String code, Generator generator) {
+    GraphType(String code) {
         this.code = code;
-        this.generator = generator;
+    }
+
+    Generator getGenerator() {
+        Generator generator;
+        switch (code) {
+            case "random":
+                generator = new RandomGenerator(4, false, false);
+                break;
+            case "lobster":
+                generator = new LobsterGenerator();
+                break;
+            default:
+                generator = null;
+        }
+        return generator;
     }
 }
