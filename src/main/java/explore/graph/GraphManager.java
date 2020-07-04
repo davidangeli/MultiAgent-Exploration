@@ -30,8 +30,10 @@ public class GraphManager {
         }
         gen.addSink(graph);
         gen.begin();
-        for(int i=0; i < graphSize; i++)
-            gen.nextEvents();
+        int i = 0;
+        while ((i < graphSize) && gen.nextEvents()) {
+            i++;
+        }
         gen.end();
     }
 

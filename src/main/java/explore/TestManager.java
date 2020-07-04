@@ -31,7 +31,10 @@ public class TestManager {
 
     private void runTests(int timeout) {
         ExecutorService executorService = Executors.newCachedThreadPool();
-        testCases.entrySet().forEach(tc -> tc.setValue(executorService.submit(tc.getKey())));
+        testCases.entrySet().forEach(tc -> {
+            tc.getKey().start();
+            tc.setValue(executorService.submit(tc.getKey()));
+        });
         logger.log(Level.INFO, "Submitted cases to the executor.");
 
         executorService.shutdown();
@@ -67,7 +70,7 @@ public class TestManager {
                 }
                 try {
                     parseInputLine(line);
-                    logger.log(Level.INFO, "Test case created: {0}", new Object[]{line});
+                    logger.log(Level.INFO, "Test cases created: {0}", new Object[]{line});
                 }
                 catch (Exception ex) {
                     logger.log(Level.WARNING, "Test cases parse error: {0}: {1}", new Object[]{line, ex.getMessage()});
@@ -82,7 +85,6 @@ public class TestManager {
     }
 
     private void parseInputLine (String line) throws IllegalArgumentException, InputMismatchException, NullPointerException {
-
         Scanner sc = new Scanner (line);
 
         GraphType graphType = GraphManager.getGraphType(sc.next());

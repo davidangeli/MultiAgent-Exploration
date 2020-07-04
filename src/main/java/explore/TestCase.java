@@ -26,7 +26,7 @@ public class TestCase implements Callable<Integer> {
 
     private final boolean runsInGui;
 
-    public AtomicBoolean stopped = new AtomicBoolean(false);
+    public AtomicBoolean stopped = new AtomicBoolean(true);
 
     public TestCase(GraphType graphType, int graphSize, Algorithm algorithm, int agentNum, boolean runsInGui) {
         this.id = ++idc;
@@ -40,6 +40,7 @@ public class TestCase implements Callable<Integer> {
     public synchronized void reset(int agentNum) {
         paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
+        statistics = 0;
 
         if (runsInGui) {
             algorithm.createLabels(graph);
@@ -59,15 +60,18 @@ public class TestCase implements Callable<Integer> {
 
     public synchronized void start() {
         if (!stopped.get()) return;
-        thread = new Thread(()->{
-            try {
-                this.call();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
         stopped.set(false);
-        thread.start();
+
+        if (runsInGui) {
+            thread = new Thread(() -> {
+                try {
+                    this.call();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            thread.start();
+        }
     }
 
     @Override
@@ -84,7 +88,9 @@ public class TestCase implements Callable<Integer> {
                 Thread.sleep(1000);
             }
         }
-
+        if (runsInGui) {
+            System.out.println("Algorithm finished exploration in " + statistics + " steps");
+        }
         return statistics;
     }
 

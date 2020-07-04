@@ -50,9 +50,9 @@ public class Gui extends JFrame {
         //generator type
         JLabel lblGeneratorType = new JLabel("Generator type");
         JComboBox<GraphType> cmbGeneratorType = new JComboBox<>();
-        cmbGeneratorType.addItem(GraphType.TUTORIAL);
-        cmbGeneratorType.addItem(GraphType.RANDOM);
-        cmbGeneratorType.addItem(GraphType.LOBSTER);
+        for (GraphType gt : GraphType.values()) {
+            cmbGeneratorType.addItem(gt);
+        }
         cmbGeneratorType.addActionListener(e -> {
             testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), Main.GUI_GRAPHSIZE, (int)txtNumberOfRobots.getSelectedItem());
             setNewGraphViewPanel();
