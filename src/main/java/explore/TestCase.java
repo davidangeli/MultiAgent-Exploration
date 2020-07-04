@@ -60,7 +60,6 @@ public class TestCase implements Callable<Integer> {
 
     public synchronized void start() {
         if (!stopped.get()) return;
-        stopped.set(false);
 
         if (runsInGui) {
             thread = new Thread(() -> {
@@ -76,6 +75,7 @@ public class TestCase implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        stopped.set(false);
 
         //loop
         while (!stopped.get()) {
