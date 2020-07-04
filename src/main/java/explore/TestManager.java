@@ -66,7 +66,7 @@ public class TestManager {
                     return;
                 }
                 try {
-                    testCases.put(parseInputLine(line), null);
+                    parseInputLine(line);
                     logger.log(Level.INFO, "Test case created: {0}", new Object[]{line});
                 }
                 catch (Exception ex) {
@@ -81,14 +81,31 @@ public class TestManager {
         }
     }
 
-    public TestCase parseInputLine (String line) throws IllegalArgumentException, InputMismatchException {
+    private void parseInputLine (String line) throws IllegalArgumentException, InputMismatchException, NullPointerException {
+
         Scanner sc = new Scanner (line);
+
         GraphType graphType = GraphManager.getGraphType(sc.next());
-        int graphSize = sc.nextInt();
+
+        //graph size: either a number x or a range x-y
+        String[] sizeRange = sc.next().split("-");
+        int minSize = Integer.parseInt(sizeRange[0]);
+        int maxSize = Integer.parseInt(sizeRange[sizeRange.length-1]);
+
         Algorithm algorithm = selectAlgorithm(sc.next());
-        int agentNum = sc.nextInt();
+
+        //agent number: either a number x or a range x-y
+        String[] agentRange = sc.next().split("-");
+        int minAgents = Integer.parseInt(agentRange[0]);
+        int maxAgents = Integer.parseInt(agentRange[agentRange.length-1]);
+
         sc.close();
-        return new TestCase(graphType, graphSize, algorithm, agentNum, false);
+
+        for (int graphSize = minSize; graphSize <= maxSize; graphSize++) {
+            for (int agentNum = minAgents; agentNum <= maxAgents; agentNum++) {
+                testCases.put(new TestCase(graphType, graphSize, algorithm, agentNum, false), null);
+            }
+        }
     }
 
     private static Algorithm selectAlgorithm (String argument) throws IllegalArgumentException {
