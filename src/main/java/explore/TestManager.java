@@ -54,7 +54,7 @@ public class TestManager {
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-            logger.log(Level.INFO, "Test case: {0} results: {1} ", new Object[]{tc, result});
+            logger.log(Level.INFO, "{0} results: {1} ", new Object[]{tc, result});
         });
     }
 

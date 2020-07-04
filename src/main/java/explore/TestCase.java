@@ -5,6 +5,7 @@ import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TestCase implements Callable<Integer> {
+    protected static int idc;
+    private final int id;
+    private final GraphType graphType;
     private final Graph graph;
     private final ArrayList<Agent> agents = new ArrayList<>();
     private final Algorithm algorithm;
@@ -25,6 +29,8 @@ public class TestCase implements Callable<Integer> {
     public AtomicBoolean stopped = new AtomicBoolean(false);
 
     public TestCase(GraphType graphType, int graphSize, Algorithm algorithm, int agentNum, boolean runsInGui) {
+        this.id = ++idc;
+        this.graphType = graphType;
         this.graph = GraphManager.getGraph(graphType, graphSize);
         this.algorithm = algorithm;
         this.runsInGui = runsInGui;
@@ -146,5 +152,13 @@ public class TestCase implements Callable<Integer> {
 
     public synchronized void tickOne() {
         if (paused) tick();
+    }
+
+    @Override
+    public String toString() {
+        String result = "TestCase" + id + ": ";
+        result += algorithm.getName() + "(" + agents.size() + ")";
+        result += graphType + "(v:" +  graph.getNodeCount() + ",e:" + graph.getEdgeCount() + ")";
+        return result;
     }
 }

@@ -29,4 +29,9 @@ public enum GraphType {
         }
         return generator;
     }
+
+    @Override
+    public String toString() {
+        return code;
+    }
 }

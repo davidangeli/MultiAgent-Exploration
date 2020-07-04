@@ -44,6 +44,22 @@ public interface Algorithm  {
     Edge selectNextStep(Agent agent);
 
     /**
+     * This method tells if an agent is finished in the current algorithm implementation.
+     * @param graph The graph.
+     * @param agent The agent.
+     * @return True or false.
+     */
+    boolean agentStops(Graph graph, Agent agent);
+
+    /**
+     * Returns the algorithm's unique string id.
+     * @return Short string id.
+     */
+    default String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    /**
      * This method sets initial labels on the graph for graphical runs.
      * @param graph The graph.
      */
@@ -100,12 +116,4 @@ public interface Algorithm  {
         labels.add(label);
         node.setAttribute(LABELID, labels);
     }
-
-    /**
-     * This method tells if an agent is finished in the current algorithm implementation.
-     * @param graph The graph.
-     * @param agent The agent.
-     * @return True or false.
-     */
-    boolean agentStops(Graph graph, Agent agent);
 }
