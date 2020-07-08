@@ -85,26 +85,40 @@ public class TestManager {
         Scanner sc = new Scanner (line);
 
         GraphType graphType = GraphManager.getGraphType(sc.next());
-
-        //graph size: either a number x or a range x-y
-        String[] sizeRange = sc.next().split("-");
-        int minSize = Integer.parseInt(sizeRange[0]);
-        int maxSize = Integer.parseInt(sizeRange[sizeRange.length-1]);
-
+        //range: either a number x,x,1 or a range x,y,s
+        int[] sizeRange = parseRange(sc.next());
+        int[] degreeRange = parseRange(sc.next());
         Algorithm algorithm = selectAlgorithm(sc.next());
-
-        //agent number: either a number x or a range x-y
-        String[] agentRange = sc.next().split("-");
-        int minAgents = Integer.parseInt(agentRange[0]);
-        int maxAgents = Integer.parseInt(agentRange[agentRange.length-1]);
+        int[] agentRange = parseRange(sc.next());
 
         sc.close();
 
-        for (int graphSize = minSize; graphSize <= maxSize; graphSize++) {
-            for (int agentNum = minAgents; agentNum <= maxAgents; agentNum++) {
+        for (int graphSize = sizeRange[0]; graphSize <= sizeRange[1]; graphSize += sizeRange[2]) {
+            for (int agentNum = agentRange[0]; agentNum <= agentRange[1]; agentNum += agentRange[2]) {
                 testCases.put(new TestCase(graphType, graphSize, algorithm, agentNum, false), null);
             }
         }
+    }
+
+    /**
+     * Reads integer range information (min, max, step) from a String token.
+     * @param token String input with integer parameters
+     * @return A 3 long integer array.
+     * @throws NumberFormatException If the token does not have the expected integer representations.
+     */
+    private int[] parseRange (String token) throws NumberFormatException {
+
+        int[] result = new int[3];
+        String RANGESEPARATOR = "-";
+        String STEPSEPARATOR = ":";
+
+        String[] parts = token.split(STEPSEPARATOR);
+        String[] range = parts[0].split(RANGESEPARATOR);
+        result[0] = Integer.parseInt(range[0]);
+        result[1] = Integer.parseInt(range[range.length-1]);
+        result[2] = parts.length > 1 ? Integer.parseInt(parts[1]) : 1;
+
+        return result;
     }
 
     private static Algorithm selectAlgorithm (String argument) throws IllegalArgumentException {
