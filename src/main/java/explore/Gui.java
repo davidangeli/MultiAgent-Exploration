@@ -46,7 +46,7 @@ public class Gui extends JFrame {
         JComboBox<Integer> txtNumberOfRobots = new JComboBox<>(new Integer[] {1, 2, 3});
         //restart button
         JButton btnRestart = new JButton("Restart");
-        btnRestart.addActionListener(e -> testCase.reset((int)txtNumberOfRobots.getSelectedItem()));
+        btnRestart.addActionListener(e -> testCase.init((int)txtNumberOfRobots.getSelectedItem(), false));
         //generator type
         JLabel lblGeneratorType = new JLabel("Generator type");
         JComboBox<GraphType> cmbGeneratorType = new JComboBox<>();
@@ -54,7 +54,7 @@ public class Gui extends JFrame {
             cmbGeneratorType.addItem(gt);
         }
         cmbGeneratorType.addActionListener(e -> {
-            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), Main.GUI_GRAPHSIZE, (int)txtNumberOfRobots.getSelectedItem());
+            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), (int)txtNumberOfRobots.getSelectedItem());
             setNewGraphViewPanel();
         });
         //next

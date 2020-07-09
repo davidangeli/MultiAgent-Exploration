@@ -17,7 +17,7 @@ public enum GraphType {
         this.code = code;
     }
 
-    Generator getGenerator() {
+    Generator getGenerator(int avgDegree) {
         Generator generator;
         switch (this) {
             case LOBSTER:
@@ -27,7 +27,7 @@ public enum GraphType {
                 generator = new PetersenGraphGenerator();
                 break;
             case RANDOM:
-                generator = new RandomGenerator(4, false, false);
+                generator = new RandomGenerator(avgDegree, false, false);
                 break;
             default:
                 generator = null;

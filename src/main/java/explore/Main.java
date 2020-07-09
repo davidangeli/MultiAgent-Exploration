@@ -14,7 +14,7 @@ public class Main {
     private static final String CONFIGFILE = "/config.properties";
     private static final String DEFAULT_INPUT_FILE = "input.txt";
     private static final String DEFAULT_OUTPUT_FILE = "output.txt";
-    public final static int GUI_GRAPHSIZE = 10;
+    public final static int GUI_GRAPHSIZE = 10, GUI_GRAPH_DEGREE = 4;
     private static final Properties properties = new Properties();
     public static final Logger logger = Logger.getLogger("");
 
@@ -41,7 +41,7 @@ public class Main {
 
         if (args.length == 0) {
             TestCase testCase;
-            testCase = new TestCase(GraphType.TUTORIAL, GUI_GRAPHSIZE, new MultiRobotDFS(),2,true);
+            testCase = new TestCase(GraphType.TUTORIAL, GUI_GRAPHSIZE, GUI_GRAPH_DEGREE, new MultiRobotDFS(),2,true);
             Gui frame = new Gui(testCase);
             frame.setVisible(true);
             logger.log(Level.INFO, "Graphical interface started.");

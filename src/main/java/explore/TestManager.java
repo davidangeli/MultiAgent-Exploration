@@ -95,7 +95,9 @@ public class TestManager {
 
         for (int graphSize = sizeRange[0]; graphSize <= sizeRange[1]; graphSize += sizeRange[2]) {
             for (int agentNum = agentRange[0]; agentNum <= agentRange[1]; agentNum += agentRange[2]) {
-                testCases.put(new TestCase(graphType, graphSize, algorithm, agentNum, false), null);
+                for (int avgDegree = degreeRange[0]; avgDegree <= degreeRange[1]; avgDegree += degreeRange[2]) {
+                    testCases.put(new TestCase(graphType, graphSize, avgDegree, algorithm, agentNum, false), null);
+                }
             }
         }
     }

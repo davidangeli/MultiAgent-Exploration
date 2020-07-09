@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TestCase implements Callable<Integer> {
     protected static int idc;
     private final int id;
-    private final GraphType graphType;
     private final Graph graph;
     private final ArrayList<Agent> agents = new ArrayList<>();
     private final Algorithm algorithm;
@@ -28,16 +27,28 @@ public class TestCase implements Callable<Integer> {
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestCase(GraphType graphType, int graphSize, Algorithm algorithm, int agentNum, boolean runsInGui) {
-        this.id = ++idc;
-        this.graphType = graphType;
-        this.graph = GraphManager.getGraph(graphType, graphSize);
-        this.algorithm = algorithm;
-        this.runsInGui = runsInGui;
-        reset(agentNum);
+    public TestCase(GraphType graphType, int graphSize, int graphDegree, Algorithm algorithm, int agentNum, boolean runsInGui) {
+        this(GraphManager.getGraph(graphType, graphSize, graphDegree), algorithm, agentNum, runsInGui);
     }
 
-    public synchronized void reset(int agentNum) {
+    public TestCase(Graph graph, Algorithm algorithm, int agentNum, boolean runsInGui) {
+        this.id = ++idc;
+        this.graph = graph;
+        this.algorithm = algorithm;
+        this.runsInGui = runsInGui;
+        init(agentNum, true);
+    }
+
+    //should only be called from gui
+    public synchronized void init(GraphType graphType, int agentNum) {
+        graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
+        init(agentNum, true);
+    }
+
+    public synchronized void init(int agentNum, boolean resetGraph) {
+        if (resetGraph) {
+            GraphManager.resetGraph(graph);
+        }
         paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
         statistics = 0;
@@ -47,11 +58,6 @@ public class TestCase implements Callable<Integer> {
             algorithm.updateLabels(agents);
             showStepCount(true);
         }
-    }
-
-    public synchronized void init(GraphType graphType, int graphSize, int agentNum) {
-        GraphManager.resetGraph(graph, graphType, graphSize);
-        reset(agentNum);
     }
 
     public boolean isRunning() {
@@ -164,7 +170,8 @@ public class TestCase implements Callable<Integer> {
     public String toString() {
         String result = "TestCase" + id + ": ";
         result += algorithm.getName() + "(" + agents.size() + ")";
-        result += graphType + "(v:" +  graph.getNodeCount() + ",e:" + graph.getEdgeCount() + ")";
+        result += graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL);
+        result += "(v:" +  graph.getNodeCount() + ",e:" + graph.getEdgeCount() + ")";
         return result;
     }
 }

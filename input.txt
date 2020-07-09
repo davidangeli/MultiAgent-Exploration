@@ -1,4 +1,4 @@
-# graphtype graphsize   algorithm_code agent_num
-lobster 100 mrdfs 2-5
-random 10-12 rr 2
-random 20 mrdfs 3-4
+# graphType graphNodesSize graphAvgDegree algorithmCode agentNum
+#lobster 100 4 mrdfs 2-5
+random 30 4-10 mrdfs 2-8:2
+#random 20 4 rr 3-4

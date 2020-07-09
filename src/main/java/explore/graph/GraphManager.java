@@ -7,17 +7,33 @@ import org.graphstream.graph.implementations.SingleGraph;
 
 public class GraphManager {
 
-    public static Graph getGraph(GraphType graphType, int graphSize) throws IllegalArgumentException {
+    public static final String GRAPH_TYPE_LABEL = "typeLabel";
+    public static final String GRAPH_SIZE_LABEL = "sizeLabel";
+    public static final String GRAPH_DEGREE_LABEL = "degreeLabel";
+
+    public static Graph getGraph(GraphType graphType, int graphSize, int avgDegree) throws IllegalArgumentException {
         Graph graph = new SingleGraph("MultiAgent");
-        resetGraph(graph, graphType, graphSize);
+        setGraphAttributes(graph, graphType, graphSize, avgDegree);
         return graph;
     }
 
-    public static void resetGraph (Graph graph, GraphType graphType, int graphSize) {
+    private static void setGraphAttributes(Graph graph, GraphType graphType, int graphSize, int avgDegree) {
+        graph.addAttribute(GRAPH_TYPE_LABEL, graphType);
+        graph.addAttribute(GRAPH_SIZE_LABEL, graphSize);
+        graph.addAttribute(GRAPH_DEGREE_LABEL, avgDegree);
+    }
+
+    public static void resetGraph (Graph graph) {
+        GraphType graphType = graph.getAttribute(GRAPH_TYPE_LABEL);
+        int graphSize = graph.getAttribute(GRAPH_SIZE_LABEL);
+        int avgDegree = graph.getAttribute(GRAPH_DEGREE_LABEL);
+
         graph.clear();
+        setGraphAttributes(graph, graphType, graphSize, avgDegree);
+
         graph.setStrict(true);
         graph.setAutoCreate(false);
-        Generator gen = graphType.getGenerator();
+        Generator gen = graphType.getGenerator(avgDegree);
         switch (graphType)
         {
             case TUTORIAL:
