@@ -179,6 +179,7 @@ public class TestCase implements Callable<int[]> {
                 agents.size() + ";" +
                 graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL) + ";" +
                 graph.getNodeCount() + ";" +
-                graph.getEdgeCount() + ";";
+                graph.getEdgeCount() + ";" +
+                repeats;
     }
 }

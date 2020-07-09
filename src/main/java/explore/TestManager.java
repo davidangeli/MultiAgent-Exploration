@@ -7,6 +7,8 @@ import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Graph;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,9 +25,16 @@ public class TestManager {
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
     private static final HashMap<TestCase, Future<int[]>> testCases = new HashMap<>();
 
-    public TestManager(String fileName, int timeout) {
+    public TestManager(String inputFile, String outputFile, int timeout) {
         logger.setUseParentHandlers(true);
-        readTestCaseFile(fileName);
+        readTestCaseFile(inputFile);
+        runTests(timeout);
+        printResults(outputFile);
+    }
+
+    public TestManager(String inputFile, int timeout) {
+        logger.setUseParentHandlers(true);
+        readTestCaseFile(inputFile);
         runTests(timeout);
         printResults();
     }
@@ -47,6 +56,36 @@ public class TestManager {
         logger.log(Level.INFO, "Executor done.");
     }
 
+    private void printResults(String outputFile) {
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+            writer.write("Testcase;Algorithm;Agents;GraphType;Nodes;Edges;Repeats;minSteps;maxSteps;avgSteps");
+            writer.newLine();
+            testCases.forEach((tc, f) -> {
+
+                try {
+                    if (f.isDone()) {
+                        int[] result = f.get();
+                        writer.write(tc + ";" + result[0] + ";" + result[1] + ";" + result[2]);
+                    }
+                    else {
+                        writer.write(tc + ";timeout");
+                    }
+                    writer.newLine();
+
+                } catch (InterruptedException | ExecutionException | IOException e) {
+                    logger.log(Level.SEVERE, "Error reading Future or writing Output.");
+                    e.printStackTrace();
+                }
+            });
+            writer.flush();
+            logger.log(Level.INFO, "Results written into the output file.");
+
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "FileWriter error on opening output file.");
+        }
+    }
+
     private void printResults() {
         testCases.forEach((tc, f) -> {
             String result = "exception";
@@ -55,11 +94,11 @@ public class TestManager {
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
+
             logger.log(Level.INFO, "{0} results: {1} ", new Object[]{tc, result});
         });
     }
 
-    //TODO: check if the graph is connected
     private void readTestCaseFile (String fileName) {
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             stream.forEach((line) -> {

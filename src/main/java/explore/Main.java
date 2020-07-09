@@ -51,7 +51,7 @@ public class Main {
         }
         else {
             int timeout = Integer.parseInt(properties.getProperty("testcase.timeout"));
-            TestManager testManager = new TestManager(DEFAULT_INPUT_FILE, timeout);
+            TestManager testManager = new TestManager(DEFAULT_INPUT_FILE, DEFAULT_OUTPUT_FILE, timeout);
             logger.log(Level.INFO, "TestManager created.");
         }
     }
