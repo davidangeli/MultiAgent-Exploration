@@ -44,6 +44,7 @@ public class Gui extends JFrame {
         //number of robots
         JLabel lblNumberOfRobots = new JLabel("Number of robots");
         JComboBox<Integer> txtNumberOfRobots = new JComboBox<>(new Integer[] {1, 2, 3});
+        txtNumberOfRobots.setSelectedIndex(1);
         //restart button
         JButton btnRestart = new JButton("Restart");
         btnRestart.addActionListener(e -> testCase.init((int)txtNumberOfRobots.getSelectedItem(), false));

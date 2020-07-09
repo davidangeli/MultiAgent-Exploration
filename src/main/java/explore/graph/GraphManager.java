@@ -1,6 +1,7 @@
 package main.java.explore.graph;
 
 import org.graphstream.algorithm.generator.Generator;
+import org.graphstream.algorithm.measure.ConnectivityMeasure;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -23,13 +24,14 @@ public class GraphManager {
         graph.addAttribute(GRAPH_DEGREE_LABEL, avgDegree);
     }
 
+    private static boolean isConnected(Graph graph) {
+        return ConnectivityMeasure.isKEdgeConnected(graph,1);
+    }
+
     public static void resetGraph (Graph graph) {
         GraphType graphType = graph.getAttribute(GRAPH_TYPE_LABEL);
         int graphSize = graph.getAttribute(GRAPH_SIZE_LABEL);
         int avgDegree = graph.getAttribute(GRAPH_DEGREE_LABEL);
-
-        graph.clear();
-        setGraphAttributes(graph, graphType, graphSize, avgDegree);
 
         graph.setStrict(true);
         graph.setAutoCreate(false);
@@ -37,20 +39,31 @@ public class GraphManager {
         switch (graphType)
         {
             case TUTORIAL:
+                graph.clear();
                 createTutorialGraph(graph);
+                setGraphAttributes(graph, graphType, graphSize, avgDegree);
                 return;
             case LOBSTER:
             case RANDOM:
             default:
                 break;
         }
+
         gen.addSink(graph);
-        gen.begin();
-        int i = 0;
-        while ((i < graphSize) && gen.nextEvents()) {
-            i++;
+
+        boolean connected = false;
+        while (!connected) {
+            graph.clear();
+            gen.begin();
+            int i = 0;
+            while ((i < graphSize) && gen.nextEvents()) {
+                i++;
+            }
+            gen.end();
+            connected = isConnected(graph);
         }
-        gen.end();
+
+        setGraphAttributes(graph, graphType, graphSize, avgDegree);
     }
 
     public static void setStartNodeStyle(Node node) {

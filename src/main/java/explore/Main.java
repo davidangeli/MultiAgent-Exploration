@@ -14,7 +14,7 @@ public class Main {
     private static final String CONFIGFILE = "/config.properties";
     private static final String DEFAULT_INPUT_FILE = "input.txt";
     private static final String DEFAULT_OUTPUT_FILE = "output.txt";
-    public final static int GUI_GRAPHSIZE = 10, GUI_GRAPH_DEGREE = 4;
+    public final static int GUI_GRAPHSIZE = 8, GUI_GRAPH_DEGREE = 4;
     private static final Properties properties = new Properties();
     public static final Logger logger = Logger.getLogger("");
 
