@@ -76,7 +76,7 @@ public class Gui extends JFrame {
         controlPanel.add(cmbGeneratorType);
         controlPanel.add(btnNextStep);
         controlPanel.add(btnPause);
-        controlPanel.add(testCase.stepCount);
+        controlPanel.add(testCase.stepCountLabel);
 
         splitPane.setLeftComponent(controlPanel);
     }

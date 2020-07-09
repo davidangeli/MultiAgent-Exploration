@@ -1,7 +1,9 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.MultiRobotDFS;
+import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
+import org.graphstream.graph.Graph;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +43,8 @@ public class Main {
 
         if (args.length == 0) {
             TestCase testCase;
-            testCase = new TestCase(GraphType.TUTORIAL, GUI_GRAPHSIZE, GUI_GRAPH_DEGREE, new MultiRobotDFS(),2,true);
+            Graph graph = GraphManager.getGraph(GraphType.TUTORIAL, GUI_GRAPHSIZE, GUI_GRAPH_DEGREE);
+            testCase = new TestCase(graph, new MultiRobotDFS(),2,true, 1);
             Gui frame = new Gui(testCase);
             frame.setVisible(true);
             logger.log(Level.INFO, "Graphical interface started.");

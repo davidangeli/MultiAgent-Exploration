@@ -8,11 +8,13 @@ import org.graphstream.graph.Graph;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TestCase implements Callable<Integer> {
+public class TestCase implements Callable<int[]> {
     protected static int idc;
     private final int id;
     private final Graph graph;
@@ -20,27 +22,26 @@ public class TestCase implements Callable<Integer> {
     private final Algorithm algorithm;
     private boolean paused = true;
     private Thread thread = new Thread();
-    public final JLabel stepCount = new JLabel("Step count: 0");
-    private int statistics;
-
+    public final JLabel stepCountLabel = new JLabel();
+    private final int repeats;
     private final boolean runsInGui;
+    private int stepCount;
+    private final static String STEP_COUNT_LABEL = "Step count: ";
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestCase(GraphType graphType, int graphSize, int graphDegree, Algorithm algorithm, int agentNum, boolean runsInGui) {
-        this(GraphManager.getGraph(graphType, graphSize, graphDegree), algorithm, agentNum, runsInGui);
-    }
-
-    public TestCase(Graph graph, Algorithm algorithm, int agentNum, boolean runsInGui) {
+    public TestCase(Graph graph, Algorithm algorithm, int agentNum, boolean runsInGui, int repeats) {
         this.id = ++idc;
         this.graph = graph;
         this.algorithm = algorithm;
         this.runsInGui = runsInGui;
+        this.repeats = repeats;
         init(agentNum, true);
     }
 
     //should only be called from gui
     public synchronized void init(GraphType graphType, int agentNum) {
+        assert(runsInGui);
         graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
         init(agentNum, true);
     }
@@ -51,12 +52,11 @@ public class TestCase implements Callable<Integer> {
         }
         paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
-        statistics = 0;
 
         if (runsInGui) {
             algorithm.createLabels(graph);
             algorithm.updateLabels(agents);
-            showStepCount(true);
+            showStepCount();
         }
     }
 
@@ -80,29 +80,35 @@ public class TestCase implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() throws Exception {
-        stopped.set(false);
+    public int[] call() throws Exception {
+        LinkedList<Integer> results = new LinkedList<>();
 
-        //loop
-        while (!stopped.get()) {
-            if (!paused) {
-                tick();
+        for (int i = 0; i < repeats; i++) {
+            stopped.set(false);
+
+            //loop
+            while (!stopped.get()) {
+                if (!paused) {
+                    tick();
+                }
+                //InterruptedException is propagated
+                //TODO: put into loop
+                if (runsInGui) {
+                    Thread.sleep(1000);
+                }
             }
-            //InterruptedException is propagated
-            //TODO: put into loop
-            if (runsInGui) {
-                Thread.sleep(1000);
-            }
+            results.add(stepCount);
         }
+
         if (runsInGui) {
-            System.out.println("Algorithm finished exploration in " + statistics + " steps");
+           stepCountLabel.setText("Done in " + stepCount + " steps.");
         }
-        return statistics;
+        return getStatistics(results);
     }
 
     private synchronized void tick () {
         AtomicBoolean allDone = new AtomicBoolean(true);
-        statistics++;
+        stepCount++;
 
         //get next step or stop
         //this has to be done in a different cycle from the move-evaluation
@@ -126,7 +132,7 @@ public class TestCase implements Callable<Integer> {
         //update labels if
         if (runsInGui) {
             algorithm.updateLabels(agents);
-            showStepCount(false);
+            showStepCount();
         }
 
         //check finished state
@@ -140,18 +146,18 @@ public class TestCase implements Callable<Integer> {
         return graph;
     }
 
-    //TODO: think this over again, esp if we'll have a counter
-    private void showStepCount(boolean reset) {
-        if (!runsInGui) { return; }
+    private int[] getStatistics(LinkedList<Integer> results) {
+        int[] stats = new int[3];
 
-        String oldI = stepCount.getText().split(" ")[2];
-        //reset
-        int newI = 0;
-        //update
-        if (!reset) {
-            newI = Integer.parseInt(oldI) + 1;
-        }
-        stepCount.setText(stepCount.getText().replace(oldI, Integer.toString(newI)));
+        stats[0] = Collections.min(results);
+        stats[1] = Collections.max(results);
+        stats[2] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
+        return stats;
+    }
+
+    private void showStepCount() {
+        assert (runsInGui);
+        stepCountLabel.setText(STEP_COUNT_LABEL + stepCount);
     }
 
     public synchronized void pause() {
@@ -168,10 +174,11 @@ public class TestCase implements Callable<Integer> {
 
     @Override
     public String toString() {
-        String result = "TestCase" + id + ": ";
-        result += algorithm.getName() + "(" + agents.size() + ")";
-        result += graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL);
-        result += "(v:" +  graph.getNodeCount() + ",e:" + graph.getEdgeCount() + ")";
-        return result;
+        return "TestCase" + id + ";" +
+                algorithm.getName() + ";" +
+                agents.size() + ";" +
+                graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL) + ";" +
+                graph.getNodeCount() + ";" +
+                graph.getEdgeCount() + ";";
     }
 }

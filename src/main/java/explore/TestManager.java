@@ -5,6 +5,7 @@ import main.java.explore.algorithm.MultiRobotDFS;
 import main.java.explore.algorithm.RotorRouter;
 import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
+import org.graphstream.graph.Graph;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +21,7 @@ public class TestManager {
     private static final char COMMENTLINE = '#';
 
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
-    private static final HashMap<TestCase, Future<Integer>> testCases = new HashMap<>();
+    private static final HashMap<TestCase, Future<int[]>> testCases = new HashMap<>();
 
     public TestManager(String fileName, int timeout) {
         logger.setUseParentHandlers(true);
@@ -50,7 +51,7 @@ public class TestManager {
         testCases.forEach((tc, f) -> {
             String result = "exception";
             try {
-                result = f.isDone() ? f.get().toString() : "timeout";
+                result = f.isDone() ? Arrays.toString(f.get()) : "timeout";
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -90,13 +91,15 @@ public class TestManager {
         int[] degreeRange = parseRange(sc.next());
         Algorithm algorithm = selectAlgorithm(sc.next());
         int[] agentRange = parseRange(sc.next());
+        int repeats = sc.nextInt();
 
         sc.close();
 
         for (int graphSize = sizeRange[0]; graphSize <= sizeRange[1]; graphSize += sizeRange[2]) {
             for (int agentNum = agentRange[0]; agentNum <= agentRange[1]; agentNum += agentRange[2]) {
                 for (int avgDegree = degreeRange[0]; avgDegree <= degreeRange[1]; avgDegree += degreeRange[2]) {
-                    testCases.put(new TestCase(graphType, graphSize, avgDegree, algorithm, agentNum, false), null);
+                    Graph graph = GraphManager.getGraph(graphType, graphSize, avgDegree);
+                    testCases.put(new TestCase(graph, algorithm, agentNum, false, repeats), null);
                 }
             }
         }
