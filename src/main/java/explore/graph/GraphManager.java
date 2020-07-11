@@ -56,7 +56,7 @@ public class GraphManager {
             graph.clear();
             gen.begin();
             int i = 0;
-            while ((i < graphSize) && gen.nextEvents()) {
+            while ((i < graphSize - 1) && gen.nextEvents()) {
                 i++;
             }
             gen.end();

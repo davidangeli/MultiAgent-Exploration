@@ -25,7 +25,7 @@ public class TestCase implements Callable<int[]> {
     public final JLabel stepCountLabel = new JLabel();
     private final int repeats;
     private final boolean runsInGui;
-    private int stepCount;
+    private int agentNum, stepCount;
     private final static String STEP_COUNT_LABEL = "Step count: ";
 
     public AtomicBoolean stopped = new AtomicBoolean(true);
@@ -36,22 +36,25 @@ public class TestCase implements Callable<int[]> {
         this.algorithm = algorithm;
         this.runsInGui = runsInGui;
         this.repeats = repeats;
-        init(agentNum, true);
+        this.agentNum = agentNum;
     }
 
     //should only be called from gui
-    public synchronized void init(GraphType graphType, int agentNum) {
+    public synchronized void init(GraphType graphType, int agentNum, boolean resetGraph) {
         assert(runsInGui);
         graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
-        init(agentNum, true);
+        this.agentNum = agentNum;
+        init(resetGraph);
     }
 
-    public synchronized void init(int agentNum, boolean resetGraph) {
+    public synchronized void init(boolean resetGraph) {
         if (resetGraph) {
             GraphManager.resetGraph(graph);
         }
         paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
+        stepCount = 0;
+        stopped.set(false);
 
         if (runsInGui) {
             algorithm.createLabels(graph);
@@ -84,7 +87,7 @@ public class TestCase implements Callable<int[]> {
         LinkedList<Integer> results = new LinkedList<>();
 
         for (int i = 0; i < repeats; i++) {
-            stopped.set(false);
+            init(true);
 
             //loop
             while (!stopped.get()) {
