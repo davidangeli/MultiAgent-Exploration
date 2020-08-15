@@ -1,4 +1,7 @@
 # graphType graphNodesSize graphAvgDegree algorithmCode agentNum repeats
 #lobster 100 4 mrdfs 2-5 10
-random 50-100:1 4-40:5 mrdfs 2-10 20
-random 50-100 4-40:5 rr 2-10 20
+#random 20-200:5 5 mrdfs 2-10:2 10
+#random 20-80:1 5 rr 3 20
+#random 20-50 4-20:5 rr 2-10 20
+random 150 5-120 mrdfs 4 10
+random 150 5-120 rr 4 10

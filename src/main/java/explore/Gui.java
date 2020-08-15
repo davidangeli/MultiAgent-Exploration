@@ -1,5 +1,8 @@
 package main.java.explore;
 
+import main.java.explore.algorithm.Algorithm;
+import main.java.explore.algorithm.MultiRobotDFS;
+import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.ui.view.Viewer;
 
@@ -11,6 +14,8 @@ import java.awt.event.WindowEvent;
 public class Gui extends JFrame {
     private final TestCase testCase;
     private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    public final static String STEP_COUNT_LABEL = "Step count: ";
+    private final static Algorithm GUI_MRDFS = new MultiRobotDFS();
 
     public Gui (TestCase testCase) {
         this.setTitle("Multi Agent Graph Exploration");
@@ -23,7 +28,7 @@ public class Gui extends JFrame {
         this.addWindowListener(
                 new WindowAdapter() {
                     public void windowClosing(WindowEvent e) {
-                        testCase.stopped.set(true);
+                        testCase.stop();
                     }
         });
 
@@ -47,19 +52,17 @@ public class Gui extends JFrame {
         txtNumberOfRobots.setSelectedIndex(1);
         //generator type
         JLabel lblGeneratorType = new JLabel("Generator type");
-        JComboBox<GraphType> cmbGeneratorType = new JComboBox<>();
-        for (GraphType gt : GraphType.values()) {
-            cmbGeneratorType.addItem(gt);
-        }
+        JComboBox<GraphType> cmbGeneratorType = new JComboBox<>(GraphType.values());
+        cmbGeneratorType.setSelectedItem(GraphType.TUTORIAL);
         //restart button
         JButton btnRestart = new JButton("Restart");
 
         //ActionListeners
         btnRestart.addActionListener(e -> {
-            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), (int)txtNumberOfRobots.getSelectedItem(), false);
+            testCase.init(testCase.getGraph().getAttribute(GraphManager.GRAPH_TYPE_LABEL), GUI_MRDFS, (int)txtNumberOfRobots.getSelectedItem(), false);
         });
         cmbGeneratorType.addActionListener(e -> {
-            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), (int)txtNumberOfRobots.getSelectedItem(), true);
+            testCase.init((GraphType) cmbGeneratorType.getSelectedItem(), GUI_MRDFS, (int)txtNumberOfRobots.getSelectedItem(), true);
             setNewGraphViewPanel();
         });
         //next
@@ -67,10 +70,7 @@ public class Gui extends JFrame {
         btnNextStep.addActionListener(e -> testCase.tickOne());
         //start-stop
         JButton btnPause = new JButton("Start / stop");
-        btnPause.addActionListener(e -> {
-        if (!testCase.isRunning()) testCase.start();
-        testCase.pause();
-        });
+        btnPause.addActionListener(e -> testCase.start());
 
         JPanel controlPanel = new JPanel();
         controlPanel.add(lblNumberOfRobots);
@@ -80,7 +80,14 @@ public class Gui extends JFrame {
         controlPanel.add(cmbGeneratorType);
         controlPanel.add(btnNextStep);
         controlPanel.add(btnPause);
-        controlPanel.add(testCase.stepCountLabel);
+
+        JLabel stepCountLabel = new JLabel(STEP_COUNT_LABEL);
+        Dimension dimension = new Dimension(120, 80);
+        stepCountLabel.setMinimumSize(dimension);
+        stepCountLabel.setPreferredSize(dimension);
+        stepCountLabel.setMaximumSize(dimension);
+        controlPanel.add(stepCountLabel);
+        testCase.setStepCountLabel(stepCountLabel);
 
         splitPane.setLeftComponent(controlPanel);
     }

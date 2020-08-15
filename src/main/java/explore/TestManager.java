@@ -138,7 +138,7 @@ public class TestManager {
             for (int agentNum = agentRange[0]; agentNum <= agentRange[1]; agentNum += agentRange[2]) {
                 for (int avgDegree = degreeRange[0]; avgDegree <= degreeRange[1]; avgDegree += degreeRange[2]) {
                     Graph graph = GraphManager.getGraph(graphType, graphSize, avgDegree);
-                    testCases.put(new TestCase(graph, algorithm, agentNum, false, repeats), null);
+                    testCases.put(new TestCase(graph, algorithm, agentNum, repeats), null);
                 }
             }
         }

@@ -19,42 +19,59 @@ public class TestCase implements Callable<int[]> {
     private final int id;
     private final Graph graph;
     private final ArrayList<Agent> agents = new ArrayList<>();
-    private final Algorithm algorithm;
+    private Algorithm algorithm;
     private boolean paused = true;
     private Thread thread = new Thread();
-    public final JLabel stepCountLabel = new JLabel();
+    private JLabel stepCountLabel;
     private final int repeats;
-    private final boolean runsInGui;
+    private boolean runsInGui = false;
     private int agentNum, stepCount;
-    private final static String STEP_COUNT_LABEL = "Step count: ";
 
-    public AtomicBoolean stopped = new AtomicBoolean(true);
+    private AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestCase(Graph graph, Algorithm algorithm, int agentNum, boolean runsInGui, int repeats) {
+    public TestCase(Graph graph, Algorithm algorithm, int agentNum, int repeats) {
         this.id = ++idc;
         this.graph = graph;
         this.algorithm = algorithm;
-        this.runsInGui = runsInGui;
         this.repeats = repeats;
         this.agentNum = agentNum;
     }
 
-    //should only be called from gui
-    public synchronized void init(GraphType graphType, int agentNum, boolean resetGraph) {
-        assert(runsInGui);
-        graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
-        this.agentNum = agentNum;
-        init(resetGraph);
+    public TestCase(Graph graph) {
+        this.id = ++idc;
+        this.graph = graph;
+        this.repeats = 1;
     }
 
-    public synchronized void init(boolean resetGraph) {
+    /**
+     * This special initialization should only be called from the Gui. It enables changing agent numbers
+     * and the type of the graph.
+     * @param graphType Type of the graph. If changes, the graph will be reset.
+     * @param algorithm Algorithm.
+     * @param agentNum Number of agents.
+     * @param resetGraph Boolean setting if the graph should be reset. In case of new graph type, the graph will be reset anyways.
+     */
+    public synchronized void init(GraphType graphType, Algorithm algorithm, int agentNum, boolean resetGraph) {
+        assert runsInGui : "This method should onyl be called from Gui.";
+        assert stopped.get() : "Test case seems to be running still.";
+        GraphType oldGrapType = graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL);
+        graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
+        this.algorithm = algorithm;
+        this.agentNum = agentNum;
+        reset(resetGraph || oldGrapType != graphType);
+    }
+
+    /**
+     * Resets the test case.
+     * @param resetGraph Set true if the graph should be renewed as well.
+     */
+    private synchronized void reset(boolean resetGraph) {
         if (resetGraph) {
             GraphManager.resetGraph(graph);
         }
         paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
         stepCount = 0;
-        stopped.set(false);
 
         if (runsInGui) {
             algorithm.createLabels(graph);
@@ -63,14 +80,16 @@ public class TestCase implements Callable<int[]> {
         }
     }
 
-    public boolean isRunning() {
-        return thread.isAlive();
-    }
-
+    /**
+     * This method starts or pauses/unpauses automatic execution in a Gui.
+     */
     public synchronized void start() {
-        if (!stopped.get()) return;
-
-        if (runsInGui) {
+        assert(runsInGui);
+        if (!stopped.get()) {
+            pause();
+        }
+        else if (!thread.isAlive()) {
+            paused = false;
             thread = new Thread(() -> {
                 try {
                     this.call();
@@ -85,9 +104,12 @@ public class TestCase implements Callable<int[]> {
     @Override
     public int[] call() throws Exception {
         LinkedList<Integer> results = new LinkedList<>();
+        stopped.set(false);
 
         for (int i = 0; i < repeats; i++) {
-            init(true);
+            if (!runsInGui) {
+                reset(true);
+            }
 
             //loop
             while (!stopped.get()) {
@@ -104,7 +126,7 @@ public class TestCase implements Callable<int[]> {
         }
 
         if (runsInGui) {
-           stepCountLabel.setText("Done in " + stepCount + " steps.");
+            showStepCount();
         }
         return getStatistics(results);
     }
@@ -160,7 +182,12 @@ public class TestCase implements Callable<int[]> {
 
     private void showStepCount() {
         assert (runsInGui);
-        stepCountLabel.setText(STEP_COUNT_LABEL + stepCount);
+        stepCountLabel.setText(Gui.STEP_COUNT_LABEL + stepCount);
+    }
+
+    public void setStepCountLabel(JLabel stepCountLabel) {
+        this.stepCountLabel = stepCountLabel;
+        this.runsInGui = true;
     }
 
     public synchronized void pause() {
