@@ -18,8 +18,8 @@ import java.util.logging.*;
 import java.util.stream.Stream;
 
 public class TestManager {
-    private static final String ROTORROUTERCODE = "rr";
-    private static final String MULTIROBOTDFSCODE = "mrdfs";
+    public static final String ROTORROUTERCODE = "rr";
+    public static final String MULTIROBOTDFSCODE = "mrdfs";
     private static final char COMMENTLINE = '#';
 
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());

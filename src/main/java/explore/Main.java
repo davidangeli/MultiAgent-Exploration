@@ -1,6 +1,5 @@
 package main.java.explore;
 
-import main.java.explore.algorithm.MultiRobotDFS;
 import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Graph;
@@ -16,8 +15,9 @@ public class Main {
     private static final String CONFIGFILE = "/config.properties";
     private static final String DEFAULT_INPUT_FILE = "input.txt";
     private static final String DEFAULT_OUTPUT_FILE = "output.txt";
-    private final static int GUI_GRAPHSIZE = 8, GUI_GRAPH_DEGREE = 4, GUI_AGENTNUM = 2;
-    private final static GraphType GUI_GRAPHTYPE = GraphType.TUTORIAL;
+    public final static int GUI_GRAPHSIZE = 8, GUI_GRAPH_DEGREE = 4, GUI_AGENTNUM = 2;
+    public final static GraphType GUI_GRAPHTYPE = GraphType.TUTORIAL;
+    public final static String GUI_ALGORITHM = TestManager.MULTIROBOTDFSCODE;
     private static final Properties properties = new Properties();
     public static final Logger logger = Logger.getLogger("");
 
@@ -47,7 +47,6 @@ public class Main {
             Graph graph = GraphManager.getGraph(GUI_GRAPHTYPE, GUI_GRAPHSIZE, GUI_GRAPH_DEGREE);
             testCase = new TestCase(graph);
             Gui frame = new Gui(testCase);
-            testCase.init(GUI_GRAPHTYPE, new MultiRobotDFS(), GUI_AGENTNUM, true);
             frame.setVisible(true);
             logger.log(Level.INFO, "Graphical interface started.");
         }
