@@ -172,11 +172,12 @@ public class TestCase implements Callable<int[]> {
     }
 
     private int[] getStatistics(LinkedList<Integer> results) {
-        int[] stats = new int[3];
+        int[] stats = new int[4];
 
         stats[0] = Collections.min(results);
         stats[1] = Collections.max(results);
         stats[2] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
+        stats[3] =(int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[2],2)).reduce(0.0, Double::sum) / ((double) results.size()));
         return stats;
     }
 

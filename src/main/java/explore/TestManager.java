@@ -59,14 +59,14 @@ public class TestManager {
     private void printResults(String outputFile) {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            writer.write("Testcase;Algorithm;Agents;GraphType;Nodes;Edges;Repeats;minSteps;maxSteps;avgSteps");
+            writer.write("Testcase;Algorithm;Agents;GraphType;Nodes;Edges;Repeats;minSteps;maxSteps;avgSteps;deviation");
             writer.newLine();
             testCases.forEach((tc, f) -> {
 
                 try {
                     if (f.isDone()) {
                         int[] result = f.get();
-                        writer.write(tc + ";" + result[0] + ";" + result[1] + ";" + result[2]);
+                        writer.write(tc + ";" + result[0] + ";" + result[1] + ";" + result[2] + ";" + result[3]);
                     }
                     else {
                         writer.write(tc + ";timeout");
