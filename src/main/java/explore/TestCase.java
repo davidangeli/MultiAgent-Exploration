@@ -104,9 +104,9 @@ public class TestCase implements Callable<int[]> {
     @Override
     public int[] call() throws Exception {
         LinkedList<Integer> results = new LinkedList<>();
-        stopped.set(false);
 
         for (int i = 0; i < repeats; i++) {
+            stopped.set(false);
             if (!runsInGui) {
                 reset(true);
             }
