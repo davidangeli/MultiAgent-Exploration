@@ -165,7 +165,7 @@ public class TestManager {
         return result;
     }
 
-    private static Algorithm selectAlgorithm (String argument) throws IllegalArgumentException {
+    public static Algorithm selectAlgorithm (String argument) throws IllegalArgumentException {
         Algorithm result;
         switch (argument.toLowerCase()) {
             case ROTORROUTERCODE:

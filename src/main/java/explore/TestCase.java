@@ -52,8 +52,8 @@ public class TestCase implements Callable<int[]> {
      * @param resetGraph Boolean setting if the graph should be reset. In case of new graph type, the graph will be reset anyways.
      */
     public synchronized void init(GraphType graphType, Algorithm algorithm, int agentNum, boolean resetGraph) {
-        assert runsInGui : "This method should onyl be called from Gui.";
-        assert stopped.get() : "Test case seems to be running still.";
+        assert(runsInGui);
+        assert(stopped.get() || paused);
         GraphType oldGrapType = graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL);
         graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
         this.algorithm = algorithm;
