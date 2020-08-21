@@ -16,7 +16,7 @@ public class Gui extends JFrame {
     private JButton btnStartStop;
     private JComboBox<GraphType> cmbGraphType;
     private JComboBox<String> cmbAlgorithm;
-    private JComboBox<Integer> txtNumberOfAgents;
+    private JComboBox<Integer> cmbNumberOfAgents;
 
     public Gui (TestCase testCase) {
         this.setTitle("Multi Agent Graph Exploration");
@@ -30,11 +30,11 @@ public class Gui extends JFrame {
         this.add(splitPane, BorderLayout.CENTER);
 
         cmbGraphType.setSelectedItem(Main.GUI_GRAPHTYPE);
-        txtNumberOfAgents.setSelectedItem(Main.GUI_AGENTNUM);
+        cmbNumberOfAgents.setSelectedItem(Main.GUI_AGENTNUM);
         cmbAlgorithm.setSelectedItem(Main.GUI_ALGORITHM);
         this.testCase.init((GraphType) cmbGraphType.getSelectedItem(),
                 TestManager.selectAlgorithm((String) Objects.requireNonNull(cmbAlgorithm.getSelectedItem())),
-                (int)txtNumberOfAgents.getSelectedItem(), true);
+                (int)cmbNumberOfAgents.getSelectedItem(), true);
 
         //setting focus to start/stop button
         this.addWindowFocusListener(new WindowAdapter() {
@@ -66,7 +66,7 @@ public class Gui extends JFrame {
         cmbAlgorithm = new JComboBox<>(new String[] {TestManager.MULTIROBOTDFSCODE, TestManager.ROTORROUTERCODE});
         //number of robots
         JLabel lblNumberOfAgents = new JLabel("Number of robots:");
-        txtNumberOfAgents = new JComboBox<>(new Integer[] {1, 2, 3});
+        cmbNumberOfAgents = new JComboBox<>(new Integer[] {1, 2, 3});
         //restart button
         JButton btnRestart = new JButton("Restart");
         //next
@@ -78,12 +78,12 @@ public class Gui extends JFrame {
         cmbGraphType.addActionListener(e -> {
             testCase.init((GraphType) cmbGraphType.getSelectedItem(),
                     TestManager.selectAlgorithm((String) Objects.requireNonNull(cmbAlgorithm.getSelectedItem())),
-                    (int)txtNumberOfAgents.getSelectedItem(), true);
+                    (int)cmbNumberOfAgents.getSelectedItem(), true);
             setNewGraphViewPanel();
         });
         btnRestart.addActionListener(e -> testCase.init((GraphType) cmbGraphType.getSelectedItem(),
-                TestManager.selectAlgorithm((String) Objects.requireNonNull(cmbAlgorithm.getSelectedItem())),
-                (int)txtNumberOfAgents.getSelectedItem(), false));
+                    TestManager.selectAlgorithm((String) Objects.requireNonNull(cmbAlgorithm.getSelectedItem())),
+                    (int)cmbNumberOfAgents.getSelectedItem(), false));
         btnNextStep.addActionListener(e -> testCase.tickOne());
         btnStartStop.addActionListener(e -> testCase.start());
 
@@ -96,7 +96,7 @@ public class Gui extends JFrame {
         controlPanel2.add(lblAlgorithm);
         controlPanel2.add(cmbAlgorithm);
         controlPanel2.add(lblNumberOfAgents);
-        controlPanel2.add(txtNumberOfAgents);
+        controlPanel2.add(cmbNumberOfAgents);
         controlPanel2.add(btnRestart);
         controlPanel3.add(btnNextStep);
         controlPanel3.add(btnStartStop);

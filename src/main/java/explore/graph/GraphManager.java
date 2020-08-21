@@ -3,7 +3,6 @@ package main.java.explore.graph;
 import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.measure.ConnectivityMeasure;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
 public class GraphManager {
@@ -11,6 +10,7 @@ public class GraphManager {
     public static final String GRAPH_TYPE_LABEL = "typeLabel";
     public static final String GRAPH_SIZE_LABEL = "sizeLabel";
     public static final String GRAPH_DEGREE_LABEL = "degreeLabel";
+    public static final String GRAPH_STARTNODE_INDEX = "startNodeIndex";
 
     public static Graph getGraph(GraphType graphType, int graphSize, int avgDegree) throws IllegalArgumentException {
         Graph graph = new SingleGraph("MultiAgent");
@@ -66,8 +66,14 @@ public class GraphManager {
         setGraphAttributes(graph, graphType, graphSize, avgDegree);
     }
 
-    public static void setStartNodeStyle(Node node) {
-        node.addAttribute("ui.style", "size: 20;");
+    public static void setStartNodeStyle(Graph graph, int nodeIndex) {
+        Object startNodeIndexObject = graph.getAttribute(GRAPH_STARTNODE_INDEX);
+        if (startNodeIndexObject != null) {
+            int startNodeIndex = graph.getAttribute(GRAPH_STARTNODE_INDEX);
+            graph.getNode(startNodeIndex).addAttribute("ui.style", "size: 10;");
+        }
+        graph.addAttribute(GRAPH_STARTNODE_INDEX, nodeIndex);
+        graph.getNode(nodeIndex).addAttribute("ui.style", "size: 20;");
     }
 
     private static void createTutorialGraph(Graph graph) {

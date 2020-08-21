@@ -16,8 +16,9 @@ public class RotorRouter implements Algorithm {
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
         //startnode
-        Node startNode = graph.getNode(DEFAULT_START_INDEX);
-        GraphManager.setStartNodeStyle(startNode);
+        int startNodeIndex = graph.getNodeCount() - 1;
+        Node startNode = graph.getNode(startNodeIndex);
+        GraphManager.setStartNodeStyle(graph, startNodeIndex);
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new RRStorage()));
         //agents
@@ -57,7 +58,7 @@ public class RotorRouter implements Algorithm {
         boolean edgesExplored = graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.VISITED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == DEFAULT_START_INDEX;
+        boolean agentHome = agent.getCurrentNode().getIndex() == (int)graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX);
         return edgesExplored && agentHome;
     }
 

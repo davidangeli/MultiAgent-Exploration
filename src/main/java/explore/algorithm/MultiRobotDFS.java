@@ -21,7 +21,7 @@ public class MultiRobotDFS implements Algorithm {
         agents.clear();
         //startnode
         Node startNode = graph.getNode(DEFAULT_START_INDEX);
-        GraphManager.setStartNodeStyle(startNode);
+        GraphManager.setStartNodeStyle(graph, DEFAULT_START_INDEX);
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
         //agents
@@ -116,7 +116,7 @@ public class MultiRobotDFS implements Algorithm {
         boolean edgesExplored = graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == DEFAULT_START_INDEX;
+        boolean agentHome = agent.getCurrentNode().getIndex() == (int)graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX);
         return edgesExplored && agentHome;
     }
 
