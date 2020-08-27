@@ -4,6 +4,7 @@ import main.java.explore.graph.GraphType;
 import org.graphstream.ui.view.Viewer;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -58,15 +59,24 @@ public class Gui extends JFrame {
     }
     
     private void setControlPanel () {
+        Dimension labelSize = new Dimension(100,20);
+        Dimension comboSize = new Dimension(100,20);
+
         //graph type
         JLabel lblGraphType = new JLabel("New graph:");
+        setComponentSize(lblGraphType, labelSize, true);
         cmbGraphType = new JComboBox<>(GraphType.values());
+        setComponentSize(cmbGraphType, comboSize, false);
         //algorithm
         JLabel lblAlgorithm = new JLabel("Algorithm:");
+        setComponentSize(lblAlgorithm, labelSize, true);
         cmbAlgorithm = new JComboBox<>(new String[] {TestManager.MULTIROBOTDFSCODE, TestManager.ROTORROUTERCODE});
+        setComponentSize(cmbAlgorithm, comboSize, false);
         //number of robots
-        JLabel lblNumberOfAgents = new JLabel("Number of robots:");
+        JLabel lblNumberOfAgents = new JLabel("Robots:");
+        setComponentSize(lblNumberOfAgents, labelSize, true);
         cmbNumberOfAgents = new JComboBox<>(new Integer[] {1, 2, 3});
+        setComponentSize(cmbNumberOfAgents, comboSize, false);
         //restart button
         JButton btnRestart = new JButton("Restart");
         //next
@@ -88,24 +98,25 @@ public class Gui extends JFrame {
         btnStartStop.addActionListener(e -> testCase.start());
 
         JPanel controlPanel = new JPanel();
-        JPanel controlPanel1 = new JPanel();
-        JPanel controlPanel2 = new JPanel();
-        JPanel controlPanel3 = new JPanel();
+        JPanel controlPanel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        controlPanel1.setBorder(new EmptyBorder(10, 0, 0, 0));
+        JPanel controlPanel2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel controlPanel3 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel controlPanel4 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         controlPanel1.add(lblGraphType);
         controlPanel1.add(cmbGraphType);
         controlPanel2.add(lblAlgorithm);
         controlPanel2.add(cmbAlgorithm);
         controlPanel2.add(lblNumberOfAgents);
         controlPanel2.add(cmbNumberOfAgents);
+        controlPanel2.add(Box.createRigidArea(new Dimension(5, 0)));
         controlPanel2.add(btnRestart);
-        controlPanel3.add(btnNextStep);
-        controlPanel3.add(btnStartStop);
+        controlPanel4.add(btnNextStep);
+        controlPanel4.add(Box.createRigidArea(new Dimension(5, 0)));
+        controlPanel4.add(btnStartStop);
 
         JLabel stepCountLabel = new JLabel(STEP_COUNT_LABEL);
-        Dimension dimension = new Dimension(120, 80);
-        stepCountLabel.setMinimumSize(dimension);
-        stepCountLabel.setPreferredSize(dimension);
-        stepCountLabel.setMaximumSize(dimension);
+        setComponentSize(stepCountLabel, new Dimension(200,20), false);
         controlPanel3.add(stepCountLabel);
         testCase.setStepCountLabel(stepCountLabel);
 
@@ -113,6 +124,16 @@ public class Gui extends JFrame {
         controlPanel.add(controlPanel1);
         controlPanel.add(controlPanel2);
         controlPanel.add(controlPanel3);
+        controlPanel.add(controlPanel4);
         splitPane.setLeftComponent(controlPanel);
+    }
+
+    private void setComponentSize(JComponent component, Dimension dimension, boolean bordersToo){
+        component.setMinimumSize(dimension);
+        component.setPreferredSize(dimension);
+        component.setMaximumSize(dimension);
+        if (bordersToo) {
+            component.setBorder(new EmptyBorder(0, 15, 0, 5));
+        }
     }
 }
