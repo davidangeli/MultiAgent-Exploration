@@ -1,4 +1,4 @@
-package main.java.explore;
+package main.java.explore.graph;
 
 import main.java.explore.algorithm.Algorithm;
 import org.graphstream.graph.Edge;

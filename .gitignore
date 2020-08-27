@@ -21,6 +21,8 @@ pom.xml.next
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
+input.txt
+output.txt
 .mvn/
 
 # Package Files #

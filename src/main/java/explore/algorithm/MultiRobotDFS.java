@@ -2,7 +2,8 @@ package main.java.explore.algorithm;
 
 import lombok.Data;
 import main.java.explore.Agent;
-import main.java.explore.EdgeState;
+import main.java.explore.graph.EdgeState;
+import main.java.explore.graph.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -11,20 +12,26 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This algorith uses no agent memory, but storage on each node.
+ * This algorithm uses no agent memory, but storage on each node.
  */
 public class MultiRobotDFS implements Algorithm {
 
     @Override
-    public void initGraph(Graph graph) {
+    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
+        agents.clear();
+        //startnode
+        Node startNode = graph.getNode(DEFAULT_START_INDEX);
+        GraphManager.setStartNodeStyle(graph, DEFAULT_START_INDEX);
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
+        //agents
+        for (int i =0; i < agentNum; i++) {
+            Agent agent = new Agent(startNode);
+            agents.add(agent);
+            evaluateOnArrival(agent, null);
+        }
         //set edges to gray
         graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
-    }
-
-    @Override
-    public void initAgent(Agent agent) {
     }
 
     @Override
@@ -105,24 +112,12 @@ public class MultiRobotDFS implements Algorithm {
     }
 
     @Override
-    public void labelNode(Node node) {
-        String label;
-        //get storage
-        MrDfsStorage store = node.getAttribute(STORAGEID);
-        //agent list
-        label = store.stream()
-                .filter(v -> !v.isFinished())
-                .map(v -> v.getAgent().toString())
-                .collect(Collectors.joining(","));
-
-        if (!"".equals(label)) {
-            label += ": " + store.toString();
-        }
-        else {
-            label = node.getId();
-        }
-
-        node.setAttribute(LABELID, label);
+    public boolean agentStops(Graph graph, Agent agent) {
+        boolean edgesExplored = graph.getEdgeSet()
+                .stream()
+                .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
+        boolean agentHome = agent.getCurrentNode().getIndex() == (int)graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX);
+        return edgesExplored && agentHome;
     }
 
     public static class MrDfsMemory {
@@ -155,7 +150,7 @@ public class MultiRobotDFS implements Algorithm {
 
         @Override
         public String toString () {
-            String label = this.agent.toString() + ": ";
+            String label = this.agent.getCode() + ":";
             label += from == null ? "null" : from.getId();
             label += "->";
             label += to == null ? "null" : to.getId();

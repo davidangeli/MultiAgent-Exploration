@@ -1,7 +1,6 @@
 package main.java.explore;
 
 import lombok.Data;
-import main.java.explore.algorithm.Algorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -13,37 +12,30 @@ import org.graphstream.graph.Node;
 public class Agent implements Runnable {
     protected static int idc;
     private final int id;
-    private final Algorithm algorithm;
     private Object memory;
     private Node currentNode;
-    private boolean runs = false, paused = false;
+    private volatile boolean running = true, paused = false;
     private int moves;
 
-    public Agent (Node node, Algorithm algorithm) {
+    public Agent (Node node) {
         this.id = ++idc;
-        this.algorithm = algorithm;
         this.currentNode = node;
-        algorithm.initAgent(this);
-        algorithm.evaluateOnArrival(this, null);
     }
 
     @Override
     public void run() {
         //TODO: implement parallel run
-        while (runs) {
-            move();
+        while (running) {
         }
     }
 
-    public void move() {
+    public void move(Edge moveOn) {
         moves++;
-        Edge moveOn = algorithm.selectNextStep(this);
         currentNode = moveOn.getOpposite(currentNode);
-        algorithm.evaluateOnArrival(this, moveOn);
     }
 
     public void stop() {
-        runs = false;
+        running = false;
     }
 
     public void pause(boolean p) {
@@ -53,5 +45,23 @@ public class Agent implements Runnable {
     @Override
     public String toString() {
         return "Agent" + id;
+    }
+
+    public String getCode () { return "A" + id; }
+
+    //TODO: better equals and hash, or with lombok
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Agent))
+            return false;
+
+        return ((Agent) o).id == this.id;
+    }
+
+    @Override
+    public final int hashCode() {
+        return id;
     }
 }

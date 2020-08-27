@@ -1,81 +1,139 @@
 package main.java.explore;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
+import main.java.explore.graph.GraphType;
+import org.graphstream.ui.view.Viewer;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Objects;
 
 public class Gui extends JFrame {
-    private JSplitPane splitPane;
-    private final JLabel lblSteps;
+    private final TestCase testCase;
+    private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    public final static String STEP_COUNT_LABEL = "Step count: ";
+    private JButton btnStartStop;
+    private JComboBox<GraphType> cmbGraphType;
+    private JComboBox<String> cmbAlgorithm;
+    private JComboBox<Integer> cmbNumberOfAgents;
 
-    public Gui (Controller controller){
+    public Gui (TestCase testCase) {
         this.setTitle("Multi Agent Graph Exploration");
-
-        this.addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e) {
-                controller.stopped.set(true);
-            }
-        });
-
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(800, 800);
         this.setLocationRelativeTo(null);
+        this.testCase = testCase;
 
-        //settings panel
-        JPanel settingsPanel = new JPanel();
+        setControlPanel();
+        setNewGraphViewPanel();
+        this.add(splitPane, BorderLayout.CENTER);
+
+        cmbGraphType.setSelectedItem(Main.GUI_GRAPHTYPE);
+        cmbNumberOfAgents.setSelectedItem(Main.GUI_AGENTNUM);
+        cmbAlgorithm.setSelectedItem(Main.GUI_ALGORITHM);
+        this.testCase.init((GraphType) cmbGraphType.getSelectedItem(),
+                TestManager.selectAlgorithm((String) Objects.requireNonNull(cmbAlgorithm.getSelectedItem())),
+                (int)cmbNumberOfAgents.getSelectedItem(), true);
+
+        //setting focus to start/stop button
+        this.addWindowFocusListener(new WindowAdapter() {
+            public void windowGainedFocus(WindowEvent e) {
+                btnStartStop.requestFocusInWindow();
+            }
+        });
+        //close event
+        this.addWindowListener(
+                new WindowAdapter() {
+                    public void windowClosing(WindowEvent e) {
+                        testCase.stop();
+                    }
+                });
+    }
+    
+    private void setNewGraphViewPanel () {
+        Viewer viewer = new Viewer(testCase.getGraph(), Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+        viewer.enableAutoLayout();
+        splitPane.setRightComponent(viewer.addDefaultView(false));
+    }
+    
+    private void setControlPanel () {
+        Dimension labelSize = new Dimension(100,20);
+        Dimension comboSize = new Dimension(100,20);
+
+        //graph type
+        JLabel lblGraphType = new JLabel("New graph:");
+        setComponentSize(lblGraphType, labelSize, true);
+        cmbGraphType = new JComboBox<>(GraphType.values());
+        setComponentSize(cmbGraphType, comboSize, false);
+        //algorithm
+        JLabel lblAlgorithm = new JLabel("Algorithm:");
+        setComponentSize(lblAlgorithm, labelSize, true);
+        cmbAlgorithm = new JComboBox<>(new String[] {TestManager.MULTIROBOTDFSCODE, TestManager.ROTORROUTERCODE});
+        setComponentSize(cmbAlgorithm, comboSize, false);
         //number of robots
-        JLabel lblNumberOfRobots = new JLabel("Number of robots");
-        JComboBox<String> txtNumberOfRobots = new JComboBox<>(new String[] {"1", "2", "3"});
+        JLabel lblNumberOfAgents = new JLabel("Robots:");
+        setComponentSize(lblNumberOfAgents, labelSize, true);
+        cmbNumberOfAgents = new JComboBox<>(new Integer[] {1, 2, 3});
+        setComponentSize(cmbNumberOfAgents, comboSize, false);
         //restart button
         JButton btnRestart = new JButton("Restart");
-        btnRestart.addActionListener(e -> {
-            setSteps(0);
-            controller.reset(Integer.parseInt((String)txtNumberOfRobots.getSelectedItem()));
-        });
-        //generator type
-        JLabel lblGeneratorType = new JLabel("Generator type");
-        JComboBox<String> cmbGeneratorType = new JComboBox<>(new String[] {"Tutorial", "Random", "Lobster"});
-        cmbGeneratorType.addActionListener(e -> {
-            setSteps(0);
-            controller.init((String)cmbGeneratorType.getSelectedItem(), Integer.parseInt((String)txtNumberOfRobots.getSelectedItem()));
-            splitPane.setRightComponent(controller.getViewPanel());
-        });
         //next
         JButton btnNextStep = new JButton("Next step");
-        btnNextStep.addActionListener(e -> controller.tickOne());
         //start-stop
-        JButton btnPause = new JButton("Start / stop");
-        btnPause.addActionListener(e -> {
-            if (!controller.isRunning()) controller.start();
-            controller.pause();
+        btnStartStop = new JButton("Start / stop");
+
+        //ActionListeners
+        cmbGraphType.addActionListener(e -> {
+            testCase.init((GraphType) cmbGraphType.getSelectedItem(),
+                    TestManager.selectAlgorithm((String) Objects.requireNonNull(cmbAlgorithm.getSelectedItem())),
+                    (int)cmbNumberOfAgents.getSelectedItem(), true);
+            setNewGraphViewPanel();
         });
+        btnRestart.addActionListener(e -> testCase.init((GraphType) cmbGraphType.getSelectedItem(),
+                    TestManager.selectAlgorithm((String) Objects.requireNonNull(cmbAlgorithm.getSelectedItem())),
+                    (int)cmbNumberOfAgents.getSelectedItem(), false));
+        btnNextStep.addActionListener(e -> testCase.tickOne());
+        btnStartStop.addActionListener(e -> testCase.start());
 
-        //Step count
-        lblSteps = new JLabel("Step count: ");
+        JPanel controlPanel = new JPanel();
+        JPanel controlPanel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        controlPanel1.setBorder(new EmptyBorder(10, 0, 0, 0));
+        JPanel controlPanel2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel controlPanel3 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel controlPanel4 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        controlPanel1.add(lblGraphType);
+        controlPanel1.add(cmbGraphType);
+        controlPanel2.add(lblAlgorithm);
+        controlPanel2.add(cmbAlgorithm);
+        controlPanel2.add(lblNumberOfAgents);
+        controlPanel2.add(cmbNumberOfAgents);
+        controlPanel2.add(Box.createRigidArea(new Dimension(5, 0)));
+        controlPanel2.add(btnRestart);
+        controlPanel4.add(btnNextStep);
+        controlPanel4.add(Box.createRigidArea(new Dimension(5, 0)));
+        controlPanel4.add(btnStartStop);
 
-        settingsPanel.add(lblNumberOfRobots);
-        settingsPanel.add(txtNumberOfRobots);
-        settingsPanel.add(btnRestart);
-        settingsPanel.add(lblGeneratorType);
-        settingsPanel.add(cmbGeneratorType);
-        settingsPanel.add(btnNextStep);
-        settingsPanel.add(btnPause);
-        settingsPanel.add(lblSteps);
+        JLabel stepCountLabel = new JLabel(STEP_COUNT_LABEL);
+        setComponentSize(stepCountLabel, new Dimension(200,20), false);
+        controlPanel3.add(stepCountLabel);
+        testCase.setStepCountLabel(stepCountLabel);
 
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, settingsPanel, controller.getViewPanel());
-
-        this.add(splitPane, BorderLayout.CENTER);
-        //this.add(controller.getViewPanel(), BorderLayout.CENTER);
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+        controlPanel.add(controlPanel1);
+        controlPanel.add(controlPanel2);
+        controlPanel.add(controlPanel3);
+        controlPanel.add(controlPanel4);
+        splitPane.setLeftComponent(controlPanel);
     }
 
-    public void setSteps(int s){
-        lblSteps.setText("Step count: " + s);
+    private void setComponentSize(JComponent component, Dimension dimension, boolean bordersToo){
+        component.setMinimumSize(dimension);
+        component.setPreferredSize(dimension);
+        component.setMaximumSize(dimension);
+        if (bordersToo) {
+            component.setBorder(new EmptyBorder(0, 15, 0, 5));
+        }
     }
 }
