@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * This algorithm uses no agent memory, but storage on each node.
  */
-public class MultiRobotDFS implements Algorithm {
+public class MultiAgentDFS implements Algorithm {
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
@@ -23,7 +23,7 @@ public class MultiRobotDFS implements Algorithm {
         Node startNode = graph.getNode(DEFAULT_START_INDEX);
         GraphManager.setStartNodeStyle(graph, DEFAULT_START_INDEX);
         //creates storage per Nodes
-        graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MrDfsStorage()));
+        graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MaDfsStorage()));
         //agents
         for (int i =0; i < agentNum; i++) {
             Agent agent = new Agent(startNode);
@@ -37,7 +37,7 @@ public class MultiRobotDFS implements Algorithm {
     @Override
     public void evaluateOnArrival(Agent agent, Edge fromEdge) {
         //get storage and memory
-        MrDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
+        MaDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
 
         //check if first visit
         boolean firsVisit = store.stream().noneMatch(v -> v.agent == agent);
@@ -45,7 +45,7 @@ public class MultiRobotDFS implements Algorithm {
         //record this visit
         EdgeState prevState = fromEdge == null ? EdgeState.UNVISITED : (EdgeState) fromEdge.getAttribute(EDGESTATEID);
         synchronized (STORELOCK) {
-            store.add(new MrDfsVisit(agent, fromEdge, firsVisit, prevState));
+            store.add(new MaDfsVisit(agent, fromEdge, firsVisit, prevState));
         }
 
         //mark the fromEdge as used
@@ -58,16 +58,16 @@ public class MultiRobotDFS implements Algorithm {
     @Override
     public Edge selectNextStep(Agent agent) {
         //get storage
-        MrDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
+        MaDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
 
         //previous visit
-        Optional<MrDfsVisit> lastVisit = store.stream()
+        Optional<MaDfsVisit> lastVisit = store.stream()
                 .filter(v -> v.agent == agent && v.isFinished())
                 .reduce((first, second) -> second);
 
         //current one
         //noinspection OptionalGetWithoutIsPresent there must be a currentVisit at this point
-        MrDfsVisit currentVisit = store.stream()
+        MaDfsVisit currentVisit = store.stream()
                 .filter(v -> v.agent == agent)
                 .reduce((first, second) -> second)
                 .get();
@@ -81,16 +81,16 @@ public class MultiRobotDFS implements Algorithm {
             return fromEdge;
         }
 
-        //original entry edges for all robots
+        //original entry edges for all agents
         Map<Agent, Edge> originalEdges = store.stream()
                 .filter(v -> v.original && v.from != null)
-                .collect(Collectors.toMap(MrDfsVisit::getAgent, MrDfsVisit::getFrom));
+                .collect(Collectors.toMap(MaDfsVisit::getAgent, MaDfsVisit::getFrom));
 
-        //original entry edge for this robot
+        //original entry edge for this agent
         Edge originalEdge = originalEdges.get(agent);
 
-        //if there's an edge that is not finished and not original entry to any robots
-        //prefer the least used edge (by all robots)
+        //if there's an edge that is not finished and not original entry to any agents
+        //prefer the least used edge (by all agents)
         Optional<Edge> to = agent.getCurrentNode().getEdgeSet().stream()
                 .filter(e -> e.getAttribute(EDGESTATEID) != EdgeState.FINISHED && !originalEdges.containsValue(e))
                 .min(Comparator.comparing(e -> store.stream().filter(v -> v.getTo() != null && v.getTo().equals(e)).count()));
@@ -120,24 +120,24 @@ public class MultiRobotDFS implements Algorithm {
         return edgesExplored && agentHome;
     }
 
-    public static class MrDfsMemory {
+    public static class MaDfsMemory {
     }
 
-    public static class MrDfsStorage extends LinkedList<MrDfsVisit> {
+    public static class MaDfsStorage extends LinkedList<MaDfsVisit> {
     }
 
     /**
-     * Subclass representing a visit on a Node by an Agent in the multirobot DFS algorithm.
+     * Subclass representing a visit on a Node by an Agent in the multiagent DFS algorithm.
      */
     @Data
-    public static class MrDfsVisit {
+    public static class MaDfsVisit {
         public final Agent agent;
         public final Edge from;
         public final boolean original;
         private Edge to;
         private final EdgeState fromEdgePrevState;
 
-        public MrDfsVisit(Agent agent, Edge from, boolean original, EdgeState state){
+        public MaDfsVisit(Agent agent, Edge from, boolean original, EdgeState state){
             this.agent = agent;
             this.from = from;
             this.original = original;

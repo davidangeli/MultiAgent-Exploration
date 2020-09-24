@@ -1,7 +1,7 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.Algorithm;
-import main.java.explore.algorithm.MultiRobotDFS;
+import main.java.explore.algorithm.MultiAgentDFS;
 import main.java.explore.algorithm.RotorRouter;
 import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class TestManager {
     public static final String ROTORROUTERCODE = "rr";
-    public static final String MULTIROBOTDFSCODE = "mrdfs";
+    public static final String MULTIAGENTDFSCODE = "madfs";
     private static final char COMMENTLINE = '#';
 
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
@@ -171,8 +171,8 @@ public class TestManager {
             case ROTORROUTERCODE:
                 result = new RotorRouter();
                 break;
-            case MULTIROBOTDFSCODE:
-                result = new MultiRobotDFS();
+            case MULTIAGENTDFSCODE:
+                result = new MultiAgentDFS();
                 break;
             default:
                 throw new IllegalArgumentException();
