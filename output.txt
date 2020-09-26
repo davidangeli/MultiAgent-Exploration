@@ -1,2 +1,0 @@
-Testcase;Algorithm;Agents;GraphType;Nodes;Edges;Repeats;minSteps;maxSteps;avgSteps
-TestCase1;RotorRouter;4;random;155;389;10;478;678;567
