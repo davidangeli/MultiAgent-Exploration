@@ -70,7 +70,7 @@ public class Gui extends JFrame {
         //algorithm
         JLabel lblAlgorithm = new JLabel("Algorithm:");
         setComponentSize(lblAlgorithm, labelSize, true);
-        cmbAlgorithm = new JComboBox<>(new String[] {TestManager.MULTIAGENTDFSCODE, TestManager.ROTORROUTERCODE});
+        cmbAlgorithm = new JComboBox<>(new String[] {TestManager.MULTIAGENTDFSCODE, TestManager.MULTIAGENTDDFSCODE, TestManager.ROTORROUTERCODE});
         setComponentSize(cmbAlgorithm, comboSize, false);
         //number of agents
         JLabel lblNumberOfAgents = new JLabel("Agents:");
