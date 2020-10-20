@@ -21,7 +21,7 @@ public class MultiAgentDFS implements Algorithm {
         agents.clear();
         //startnode
         Node startNode = graph.getNode(DEFAULT_START_INDEX);
-        GraphManager.setStartNodeStyle(graph, DEFAULT_START_INDEX);
+        GraphManager.setStartNodeStyle(graph, new int[]{DEFAULT_START_INDEX});
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MaDfsStorage()));
         //agents

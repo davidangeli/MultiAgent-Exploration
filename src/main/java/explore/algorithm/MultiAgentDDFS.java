@@ -21,18 +21,20 @@ public class MultiAgentDDFS implements Algorithm {
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MaDDfsStorage()));
         //agents
+        int[] startNodeIndexes = new int[agentNum];
         for (int i =0; i < agentNum; i++) {
             //startnode
             int n = random.nextInt(graph.getNodeCount());
+            startNodeIndexes[i] = n;
             Node startNode = graph.getNode(n);
-            GraphManager.setStartNodeStyle(graph, n);
             //agent
             Agent agent = new Agent(startNode);
             agent.setMemory(new MultiAgentDDFS());
             agents.add(agent);
             evaluateOnArrival(agent, null);
         }
-        //set edges to gray
+        //set start node style and edges to gray
+        GraphManager.setStartNodeStyle(graph, startNodeIndexes);
         graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
     }
 
