@@ -29,7 +29,7 @@ public class MultiAgentDDFS implements Algorithm {
             Node startNode = graph.getNode(n);
             //agent
             Agent agent = new Agent(startNode);
-            agent.setMemory(new MultiAgentDDFS());
+            agent.setMemory(new MaDDfsMemory());
             agents.add(agent);
             evaluateOnArrival(agent, null);
         }
@@ -40,10 +40,11 @@ public class MultiAgentDDFS implements Algorithm {
 
     @Override
     public void evaluateOnArrival(Agent agent, Edge fromEdge) {
-        //get storage
+        //get storage and memory
         MaDDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
+        MaDDfsMemory memory = (MaDDfsMemory) agent.getMemory();
 
-        //check if first visit
+        //check and set if first visit
         if (store.getExploredBy() == 0) {
             store.setExploredBy(agent.getId());
         }
@@ -51,27 +52,51 @@ public class MultiAgentDDFS implements Algorithm {
 
         //mark the fromEdge as used and which territory it belongs to, and add to path
         if (fromEdge != null) { //it is null at startNode
-            EdgeState.VISITED.setEdge(fromEdge);
-            fromEdge.setAttribute(LABELID, exploredBy);
-            ((MaDDfsMemory)agent.getMemory()).add(fromEdge);
+            //check if the agent goes backwards
+            if (!memory.isEmpty() && fromEdge == memory.getLast()) {
+                memory.removeLast();
+            }
+            //normal move, node already explored
+            else if (exploredBy != agent.getId()) {
+                EdgeState.VISITED.setEdge(fromEdge);
+                fromEdge.setAttribute(LABELID, exploredBy);
+                memory.add(fromEdge);
+            }
+            //normal move, unexplored node
+            else {
+                EdgeState.VISITED.setEdge(fromEdge);
+                fromEdge.setAttribute(LABELID, exploredBy);
+                memory.add(fromEdge);
+            }
         }
     }
 
     @Override
     public Edge selectNextStep(Agent agent) {
         Edge nextEdge = null;
-        Iterator<Edge> it = agent.getCurrentNode().getEdgeIterator();
-        while (it.hasNext() && nextEdge == null) {
-            Edge edge = it.next();
-            if (edge.getAttribute(EDGESTATEID) == EdgeState.UNVISITED) {
-                nextEdge = edge;
+        MaDDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
+        MaDDfsMemory memory = (MaDDfsMemory)agent.getMemory();
+
+        //foreign territory
+        if (store.getExploredBy() != agent.getId()) {
+            if (!memory.isEmpty()) {
+                nextEdge = memory.getLast();
             }
         }
+        //own territory
+        else {
+            Iterator<Edge> it = agent.getCurrentNode().getEdgeIterator();
+            while (it.hasNext() && nextEdge == null) {
+                Edge edge = it.next();
+                if (edge.getAttribute(EDGESTATEID) == EdgeState.UNVISITED) {
+                    nextEdge = edge;
+                }
+            }
 
-        if (nextEdge == null) {
-            MaDDfsMemory memory = (MaDDfsMemory)agent.getMemory();
-            if (!memory.isEmpty()) {
-                nextEdge = memory.removeLast();
+            if (nextEdge == null) {
+                if (!memory.isEmpty()) {
+                    nextEdge = memory.getLast();
+                }
             }
         }
 
@@ -89,6 +114,11 @@ public class MultiAgentDDFS implements Algorithm {
 
     @Data
     public static class MaDDfsStorage {
-        private int exploredBy;
+        private int exploredBy = 0;
+
+        @Override
+        public String toString() {
+            return Integer.toString(exploredBy);
+        }
     }
 }

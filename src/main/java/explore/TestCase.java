@@ -126,6 +126,7 @@ public class TestCase implements Callable<int[]> {
         }
 
         if (runsInGui) {
+            System.out.println("Testcase run done.");
             showStepCount();
         }
         return getStatistics(results);

@@ -116,7 +116,7 @@ public class MultiAgentDFS implements Algorithm {
         boolean edgesExplored = graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == (int)graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX);
+        boolean agentHome = agent.getCurrentNode().getIndex() == ((int[])graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX))[0];
         return edgesExplored && agentHome;
     }
 
