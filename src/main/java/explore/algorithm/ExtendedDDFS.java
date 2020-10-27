@@ -46,7 +46,10 @@ public class ExtendedDDFS implements Algorithm {
         //check and set if first visit, negate search mode
         if (store.getExploredBy() == 0) {
             store.setExploredBy(agent.getId());
-            memory.isInSearchMode = false;
+            if (memory.isInSearchMode) {
+                memory.clear();
+                memory.isInSearchMode = false;
+            }
         }
 
         //search mode
@@ -140,7 +143,7 @@ public class ExtendedDDFS implements Algorithm {
         if (!explorationDone) {
             checkExplorationDone(agents);
         }
-        return explorationDone && selectNextStep(agent) == null;
+        return explorationDone;
     }
 
     private void checkExplorationDone (ArrayList<Agent> agents) {
