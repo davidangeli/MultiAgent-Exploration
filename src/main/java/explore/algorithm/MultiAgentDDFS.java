@@ -14,12 +14,25 @@ import java.util.LinkedList;
 import java.util.Random;
 
 public class MultiAgentDDFS implements Algorithm {
+
+    //for graphical representation, territories are marked with different colors
+    //there should not be more than 7 agents ever in gui
+    public static final String[] EDGESTYLES = {
+            "size: 3px;fill-color: rgb(245, 19, 15);",
+            "size: 3px;fill-color: rgb(245, 218, 15);",
+            "size: 3px;fill-color: rgb(99, 245, 15);",
+            "size: 3px;fill-color: rgb(15, 245, 195);",
+            "size: 3px;fill-color: rgb(15, 49, 245);",
+            "size: 3px;fill-color: rgb(153, 15, 245);",
+            "size: 3px;fill-color: rgb(245, 15, 180);"
+    };
+
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
         Random random = new Random();
         //creates storage per Nodes
-        graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MaDDfsStorage()));
+        graph.getNodeSet().forEach(n -> n.setAttribute(STORAGEID, new MaDDfsStorage()));
         //agents
         int[] startNodeIndexes = new int[agentNum];
         for (int i =0; i < agentNum; i++) {
@@ -35,7 +48,10 @@ public class MultiAgentDDFS implements Algorithm {
         }
         //set start node style and edges to gray
         GraphManager.setStartNodeStyle(graph, startNodeIndexes);
-        graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
+        graph.getEdgeSet().forEach(e -> {
+            EdgeState.UNVISITED.setEdge(e);
+            e.removeAttribute(LABELID);
+        });
     }
 
     @Override

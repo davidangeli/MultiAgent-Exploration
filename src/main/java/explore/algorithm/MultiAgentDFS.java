@@ -31,7 +31,10 @@ public class MultiAgentDFS implements Algorithm {
             evaluateOnArrival(agent, null);
         }
         //set edges to gray
-        graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
+        graph.getEdgeSet().forEach(e -> {
+            EdgeState.UNVISITED.setEdge(e);
+            e.removeAttribute(LABELID);
+        });
     }
 
     @Override

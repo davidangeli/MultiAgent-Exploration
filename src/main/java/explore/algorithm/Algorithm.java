@@ -113,16 +113,19 @@ public interface Algorithm  {
 
         //add styles to edges
         Iterator<Edge> edgeIt = graph.getEdgeIterator();
+        boolean isMaDDFS = this.getClass() == MultiAgentDDFS.class;
         while (edgeIt.hasNext()) {
             Edge edge = edgeIt.next();
             //set visited state style
             if (edge.hasAttribute(EDGESTATEID)) {
                 EdgeState state = edge.getAttribute(EDGESTATEID);
-                edge.setAttribute("ui.style", state.style);
                 //in maddfs we mark visited edges with different colors
-                if (state == EdgeState.VISITED) {
-                    int agentId = edge.getAttribute(LABELID);
-                    //TODO: implement different colors
+                if (state == EdgeState.VISITED && isMaDDFS) {
+                    int agentId = (int)edge.getAttribute(LABELID) % agents.size();
+                    edge.setAttribute("ui.style", MultiAgentDDFS.EDGESTYLES[agentId]);
+                }
+                else {
+                    edge.setAttribute("ui.style", state.style);
                 }
             }
 

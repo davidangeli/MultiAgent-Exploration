@@ -29,7 +29,7 @@ public class GraphManager {
         return ConnectivityMeasure.isKEdgeConnected(graph,1);
     }
 
-    public static void resetGraph (Graph graph) {
+    public static void regenerateGraph (Graph graph) {
         GraphType graphType = graph.getAttribute(GRAPH_TYPE_LABEL);
         int graphSize = graph.getAttribute(GRAPH_SIZE_LABEL);
         int avgDegree = graph.getAttribute(GRAPH_DEGREE_LABEL);

@@ -49,25 +49,25 @@ public class TestCase implements Callable<int[]> {
      * @param graphType Type of the graph. If changes, the graph will be reset.
      * @param algorithm Algorithm.
      * @param agentNum Number of agents.
-     * @param resetGraph Boolean setting if the graph should be reset. In case of new graph type, the graph will be reset anyways.
+     * @param regenerateGraph Boolean setting if the graph should be reset. In case of new graph type, the graph will be reset anyways.
      */
-    public synchronized void init(GraphType graphType, Algorithm algorithm, int agentNum, boolean resetGraph) {
+    public synchronized void init(GraphType graphType, Algorithm algorithm, int agentNum, boolean regenerateGraph) {
         assert(runsInGui);
         assert(stopped.get() || paused);
         GraphType oldGrapType = graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL);
         graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
         this.algorithm = algorithm;
         this.agentNum = agentNum;
-        reset(resetGraph || oldGrapType != graphType);
+        reset(regenerateGraph || oldGrapType != graphType);
     }
 
     /**
      * Resets the test case.
-     * @param resetGraph Set true if the graph should be renewed as well.
+     * @param regenerateGraph Set true if the graph should be renewed as well.
      */
-    private synchronized void reset(boolean resetGraph) {
-        if (resetGraph) {
-            GraphManager.resetGraph(graph);
+    private synchronized void reset(boolean regenerateGraph) {
+        if (regenerateGraph) {
+            GraphManager.regenerateGraph(graph);
         }
         paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
@@ -75,7 +75,7 @@ public class TestCase implements Callable<int[]> {
 
         if (runsInGui) {
             algorithm.createLabels(graph);
-            algorithm.updateLabels(agents);
+            algorithm.updateLabels(graph, agents);
             showStepCount();
         }
     }
@@ -157,7 +157,7 @@ public class TestCase implements Callable<int[]> {
 
         //update labels if
         if (runsInGui) {
-            algorithm.updateLabels(agents);
+            algorithm.updateLabels(graph, agents);
             showStepCount();
         }
 
