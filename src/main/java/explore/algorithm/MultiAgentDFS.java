@@ -19,22 +19,20 @@ public class MultiAgentDFS implements Algorithm {
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
-        //startnode
-        Node startNode = graph.getNode(DEFAULT_START_INDEX);
-        GraphManager.setStartNodeStyle(graph, new int[]{DEFAULT_START_INDEX});
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MaDfsStorage()));
-        //agents
+
+        //(re)set start nodes and edges style and labels
+        int[] startNodeIndexes = {DEFAULT_START_INDEX};
+        GraphManager.resetGraph(graph, startNodeIndexes);
+
+        //create agents
+        Node startNode = graph.getNode(startNodeIndexes[0]);
         for (int i =0; i < agentNum; i++) {
             Agent agent = new Agent(startNode);
             agents.add(agent);
             evaluateOnArrival(agent, null);
         }
-        //set edges to gray
-        graph.getEdgeSet().forEach(e -> {
-            EdgeState.UNVISITED.setEdge(e);
-            e.removeAttribute(LABELID);
-        });
     }
 
     @Override

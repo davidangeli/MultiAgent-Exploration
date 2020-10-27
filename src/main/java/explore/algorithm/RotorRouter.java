@@ -15,14 +15,15 @@ public class RotorRouter implements Algorithm {
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
-        //startnode
-        //int startNodeIndex = graph.getNodeCount() - 1;
-        int startNodeIndex = DEFAULT_START_INDEX;
-        Node startNode = graph.getNode(startNodeIndex);
-        GraphManager.setStartNodeStyle(graph, new int[]{startNodeIndex});
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new RRStorage()));
-        //agents
+
+        //(re)set start nodes and edges style and labels
+        int[] startNodeIndexes = {DEFAULT_START_INDEX};
+        GraphManager.resetGraph(graph, startNodeIndexes);
+
+        //create agents
+        Node startNode = graph.getNode(startNodeIndexes[0]);
         for (int i =0; i < agentNum; i++) {
             Agent agent = new Agent(startNode);
             agents.add(agent);

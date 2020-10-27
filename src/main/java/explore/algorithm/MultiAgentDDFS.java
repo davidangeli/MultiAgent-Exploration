@@ -30,28 +30,24 @@ public class MultiAgentDDFS implements Algorithm {
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
-        Random random = new Random();
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.setAttribute(STORAGEID, new MaDDfsStorage()));
-        //agents
+
+        //(re)set start nodes and edges style and labels
+        Random random = new Random();
         int[] startNodeIndexes = new int[agentNum];
+        for (int i=0; i< startNodeIndexes.length; i++) {
+            startNodeIndexes[i] = random.nextInt(graph.getNodeCount());
+        }
+        GraphManager.resetGraph(graph, startNodeIndexes);
+
+        //create agents
         for (int i =0; i < agentNum; i++) {
-            //startnode
-            int n = random.nextInt(graph.getNodeCount());
-            startNodeIndexes[i] = n;
-            Node startNode = graph.getNode(n);
-            //agent
-            Agent agent = new Agent(startNode);
+            Agent agent = new Agent(graph.getNode(startNodeIndexes[i]));
             agent.setMemory(new MaDDfsMemory());
             agents.add(agent);
             evaluateOnArrival(agent, null);
         }
-        //set start node style and edges to gray
-        GraphManager.setStartNodeStyle(graph, startNodeIndexes);
-        graph.getEdgeSet().forEach(e -> {
-            EdgeState.UNVISITED.setEdge(e);
-            e.removeAttribute(LABELID);
-        });
     }
 
     @Override

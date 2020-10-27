@@ -6,6 +6,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
+import static main.java.explore.algorithm.Algorithm.LABELID;
+
 public class GraphManager {
 
     public static final String GRAPH_TYPE_LABEL = "typeLabel";
@@ -67,7 +69,16 @@ public class GraphManager {
         setGraphAttributes(graph, graphType, graphSize, avgDegree);
     }
 
-    public static void setStartNodeStyle(Graph graph, int[] nodeIndexes) {
+    public static void resetGraph (Graph graph, int[] startNodeIndexes) {
+        //set edges to unvisited and remove labels
+        graph.getEdgeSet().forEach(e -> {
+            EdgeState.UNVISITED.setEdge(e);
+            e.removeAttribute(LABELID);
+        });
+        setStartNodeStyle(graph, startNodeIndexes);
+    }
+
+    private static void setStartNodeStyle(Graph graph, int[] nodeIndexes) {
         //clear previous start node data and reset nodes
         if (graph.hasAttribute(GRAPH_STARTNODE_INDEX)) {
             int[] startNodeIndexes = (int[]) graph.getAttribute(GRAPH_STARTNODE_INDEX);
