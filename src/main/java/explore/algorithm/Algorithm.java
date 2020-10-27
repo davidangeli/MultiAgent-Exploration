@@ -50,7 +50,7 @@ public interface Algorithm  {
      * @param agent The agent.
      * @return True or false.
      */
-    boolean agentStops(Graph graph, Agent agent);
+    boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent);
 
     /**
      * Returns the algorithm's unique string id.
@@ -113,16 +113,16 @@ public interface Algorithm  {
 
         //add styles to edges
         Iterator<Edge> edgeIt = graph.getEdgeIterator();
-        boolean isMaDDFS = this.getClass() == MultiAgentDDFS.class;
+        boolean isDDFS = this.getClass() == DistributedDFS.class || this.getClass() == ExtendedDDFS.class;
         while (edgeIt.hasNext()) {
             Edge edge = edgeIt.next();
             //set visited state style
             if (edge.hasAttribute(EDGESTATEID)) {
                 EdgeState state = edge.getAttribute(EDGESTATEID);
-                //in maddfs we mark visited edges with different colors
-                if (state == EdgeState.VISITED && isMaDDFS) {
+                //in ddfs or eddfs we mark visited edges with different colors
+                if (state == EdgeState.VISITED && isDDFS) {
                     int agentId = (int)edge.getAttribute(LABELID) % agents.size();
-                    edge.setAttribute("ui.style", MultiAgentDDFS.EDGESTYLES[agentId]);
+                    edge.setAttribute("ui.style", DistributedDFS.EDGESTYLES[agentId]);
                 }
                 else {
                     edge.setAttribute("ui.style", state.style);

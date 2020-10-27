@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * This algorithm uses no agent memory, but storage on each node.
  */
-public class MultiAgentDFS implements Algorithm {
+public class DFS implements Algorithm {
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
@@ -113,7 +113,7 @@ public class MultiAgentDFS implements Algorithm {
     }
 
     @Override
-    public boolean agentStops(Graph graph, Agent agent) {
+    public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
         boolean edgesExplored = graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);

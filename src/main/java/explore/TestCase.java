@@ -140,7 +140,7 @@ public class TestCase implements Callable<int[]> {
         //this has to be done in a different cycle from the move-evaluation
         HashMap<Agent, Edge> agentNextStep = new HashMap<>();
         agents.stream().filter(Agent::isRunning).forEach(a -> {
-            if (algorithm.agentStops(graph, a)) {
+            if (algorithm.agentStops(graph, agents, a)) {
                 a.stop();
             } else {
                 agentNextStep.put(a, algorithm.selectNextStep(a));

@@ -59,7 +59,7 @@ public class RotorRouter implements Algorithm {
     }
 
     @Override
-    public boolean agentStops(Graph graph, Agent agent) {
+    public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
         boolean edgesExplored = graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.VISITED);

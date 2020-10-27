@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class MultiAgentDDFS implements Algorithm {
+public class DistributedDFS implements Algorithm {
 
     //for graphical representation, territories are marked with different colors
     //there should not be more than 7 agents ever in gui
@@ -116,7 +116,7 @@ public class MultiAgentDDFS implements Algorithm {
     }
 
     @Override
-    public boolean agentStops(Graph graph, Agent agent) {
+    public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
         return selectNextStep(agent) == null;
     }
 

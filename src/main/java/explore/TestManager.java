@@ -1,9 +1,6 @@
 package main.java.explore;
 
-import main.java.explore.algorithm.Algorithm;
-import main.java.explore.algorithm.MultiAgentDDFS;
-import main.java.explore.algorithm.MultiAgentDFS;
-import main.java.explore.algorithm.RotorRouter;
+import main.java.explore.algorithm.*;
 import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Graph;
@@ -22,6 +19,7 @@ public class TestManager {
     public static final String ROTORROUTERCODE = "rr";
     public static final String MULTIAGENTDFSCODE = "madfs";
     public static final String MULTIAGENTDDFSCODE = "maddfs";
+    public static final String MULTIAGENTEDDFSCODE = "maeddfs";
     private static final char COMMENTLINE = '#';
 
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
@@ -174,10 +172,13 @@ public class TestManager {
                 result = new RotorRouter();
                 break;
             case MULTIAGENTDFSCODE:
-                result = new MultiAgentDFS();
+                result = new DFS();
                 break;
             case MULTIAGENTDDFSCODE:
-                result = new MultiAgentDDFS();
+                result = new DistributedDFS();
+                break;
+            case MULTIAGENTEDDFSCODE:
+                result = new ExtendedDDFS();
                 break;
             default:
                 throw new IllegalArgumentException();
