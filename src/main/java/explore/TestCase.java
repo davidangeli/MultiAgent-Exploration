@@ -155,16 +155,16 @@ public class TestCase implements Callable<int[]> {
             algorithm.evaluateOnArrival(a, moveOn);
         });
 
-        //update labels if
-        if (runsInGui) {
-            algorithm.updateLabels(graph, agents);
-            showStepCount();
-        }
-
         //check finished state
         if (allDone.get()) {
             stopped.set(true);
             //System.out.println("Graph explored! " + statistics);
+        }
+
+        //update labels if
+        if (runsInGui) {
+            algorithm.updateLabels(graph, agents);
+            showStepCount();
         }
     }
 
@@ -184,7 +184,7 @@ public class TestCase implements Callable<int[]> {
 
     private void showStepCount() {
         assert (runsInGui);
-        stepCountLabel.setText(Gui.STEP_COUNT_LABEL + stepCount);
+        stepCountLabel.setText((stopped.get() ? Gui.STEP_TOTAL_LABEL : Gui.STEP_COUNT_LABEL) + stepCount);
     }
 
     public void setStepCountLabel(JLabel stepCountLabel) {

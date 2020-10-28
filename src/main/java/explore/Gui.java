@@ -14,6 +14,7 @@ public class Gui extends JFrame {
     private final TestCase testCase;
     private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
     public final static String STEP_COUNT_LABEL = "Step count: ";
+    public final static String STEP_TOTAL_LABEL = "Steps total: ";
     private JButton btnStartStop;
     private JComboBox<GraphType> cmbGraphType;
     private JComboBox<String> cmbAlgorithm;
