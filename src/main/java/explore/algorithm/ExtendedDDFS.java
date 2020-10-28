@@ -11,12 +11,9 @@ import java.util.*;
 
 public class ExtendedDDFS implements Algorithm {
 
-    private boolean explorationDone = false;
-
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
-        explorationDone = false;
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.setAttribute(STORAGEID, new MaEDDfsStorage()));
 
@@ -46,47 +43,28 @@ public class ExtendedDDFS implements Algorithm {
         //check and set if first visit, negate search mode
         if (store.getExploredBy() == 0) {
             store.setExploredBy(agent.getId());
-            if (memory.isInSearchMode) {
-                memory.clear();
-                memory.isInSearchMode = false;
-            }
+            memory.isInSearchMode = false;
         }
 
         //search mode
         if (memory.isInSearchMode) {
-            if (!memory.isEmpty() && fromEdge == memory.getLast()) {
-                memory.removeLast();
-            }
-            else {
-                memory.add(fromEdge);
-            }
-            if (explorationDone) {
-                memory.isInSearchMode = false;
-            }
+            //nothing to do here
         }
         //explore mode
         else {
             int exploredBy = store.getExploredBy();
             //mark the fromEdge as used and which territory it belongs to, and add to path
             if (fromEdge != null) { //it is null at startNode
-                //check if the agent goes backwards
+                //move backwards
                 if (!memory.isEmpty() && fromEdge == memory.getLast()) {
                     memory.removeLast();
-                    //if reached the start node, set to search mode - unless explorationDone
-                    if (memory.isEmpty()) {
+                    //if reached the start node, set to search mode
+                    if (memory.isEmpty() && selectNextStep(agent) == null) {
                         memory.setFinishedOnce(true);
-                        if (!explorationDone) {
-                            memory.isInSearchMode = true;
-                        }
+                        memory.isInSearchMode = true;
                     }
                 }
-                //normal move, node already explored
-                else if (exploredBy != agent.getId()) {
-                    EdgeState.VISITED.setEdge(fromEdge);
-                    fromEdge.setAttribute(LABELID, exploredBy);
-                    memory.add(fromEdge);
-                }
-                //normal move, unexplored node
+                //normal move
                 else {
                     EdgeState.VISITED.setEdge(fromEdge);
                     fromEdge.setAttribute(LABELID, exploredBy);
@@ -112,6 +90,8 @@ public class ExtendedDDFS implements Algorithm {
         }
         else {
             //foreign territory
+            //memory should only be in foreign if two agent start on same node:
+            // but then the second starts in search mode
             if (store.getExploredBy() != agent.getId()) {
                 if (!memory.isEmpty()) {
                     nextEdge = memory.getLast();
@@ -140,22 +120,14 @@ public class ExtendedDDFS implements Algorithm {
 
     @Override
     public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
-        if (!explorationDone) {
-            checkExplorationDone(agents);
-        }
-        return explorationDone;
-    }
-
-    private void checkExplorationDone (ArrayList<Agent> agents) {
-        for (Agent agent: agents) {
-            MaEDDfsMemory memory = (MaEDDfsMemory)agent.getMemory();
-            if (!memory.isFinishedOnce()) {
-                return;
+        for (Agent a: agents) {
+            MaEDDfsMemory memory = (MaEDDfsMemory)a.getMemory();
+            if (!memory.isInSearchMode() && !memory.isFinishedOnce()) {
+                return false;
             }
         }
-        explorationDone = true;
+        return true;
     }
-
 
     @Data
     public static class MaEDDfsMemory extends LinkedList<Edge> {
@@ -170,7 +142,7 @@ public class ExtendedDDFS implements Algorithm {
 
         @Override
         public String toString() {
-            return Integer.toString(exploredBy);
+            return exploredBy + ", " + routeIndex;
         }
     }
 }

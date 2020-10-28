@@ -64,17 +64,11 @@ public class DistributedDFS implements Algorithm {
 
         //mark the fromEdge as used and which territory it belongs to, and add to path
         if (fromEdge != null) { //it is null at startNode
-            //check if the agent goes backwards
+            //move backwards
             if (!memory.isEmpty() && fromEdge == memory.getLast()) {
                 memory.removeLast();
             }
-            //normal move, node already explored
-            else if (exploredBy != agent.getId()) {
-                EdgeState.VISITED.setEdge(fromEdge);
-                fromEdge.setAttribute(LABELID, exploredBy);
-                memory.add(fromEdge);
-            }
-            //normal move, unexplored node
+            //normal move
             else {
                 EdgeState.VISITED.setEdge(fromEdge);
                 fromEdge.setAttribute(LABELID, exploredBy);
