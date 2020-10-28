@@ -40,37 +40,27 @@ public class ExtendedDDFS implements Algorithm {
         MaEDDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
         MaEDDfsMemory memory = (MaEDDfsMemory) agent.getMemory();
 
-        //check and set if first visit, negate search mode
-        if (store.getExploredBy() == 0) {
-            store.setExploredBy(agent.getId());
-            memory.isInSearchMode = false;
+        //explore mode: mark edge, keep track
+        if (!memory.isInSearchMode() && fromEdge != null) {
+            //move backwards
+            if (!memory.isEmpty() && fromEdge == memory.getLast()) {
+                memory.removeLast();
+            }
+            //normal move
+            else {
+                if (store.getExploredBy() == 0) {
+                    store.setExploredBy(agent.getId());
+                }
+                EdgeState.VISITED.setEdge(fromEdge);
+                fromEdge.setAttribute(LABELID, store.getExploredBy());
+                memory.add(fromEdge);
+            }
         }
 
-        //search mode
-        if (memory.isInSearchMode) {
-            //nothing to do here
-        }
-        //explore mode
-        else {
-            int exploredBy = store.getExploredBy();
-            //mark the fromEdge as used and which territory it belongs to, and add to path
-            if (fromEdge != null) { //it is null at startNode
-                //move backwards
-                if (!memory.isEmpty() && fromEdge == memory.getLast()) {
-                    memory.removeLast();
-                    //if reached the start node, set to search mode
-                    if (memory.isEmpty() && selectNextStep(agent) == null) {
-                        memory.setFinishedOnce(true);
-                        memory.isInSearchMode = true;
-                    }
-                }
-                //normal move
-                else {
-                    EdgeState.VISITED.setEdge(fromEdge);
-                    fromEdge.setAttribute(LABELID, exploredBy);
-                    memory.add(fromEdge);
-                }
-            }
+        //check if first visit in search mode: mark node, negate search mode
+        if (store.getExploredBy() == 0) {
+            store.setExploredBy(agent.getId());
+            memory.setInSearchMode(false);
         }
     }
 
@@ -80,15 +70,8 @@ public class ExtendedDDFS implements Algorithm {
         MaEDDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
         MaEDDfsMemory memory = (MaEDDfsMemory)agent.getMemory();
 
-        //search mode
-        if (memory.isInSearchMode) {
-            int route = store.routeIndex;
-            nextEdge = agent.getCurrentNode().getEdge(route);
-            route += 1;
-            route = route % agent.getCurrentNode().getEdgeSet().size();
-            store.setRouteIndex(route);
-        }
-        else {
+        //explore mode
+        if (!memory.isInSearchMode()) {
             //foreign territory
             //memory should only be in foreign if two agent start on same node:
             // but then the second starts in search mode
@@ -111,8 +94,23 @@ public class ExtendedDDFS implements Algorithm {
                     if (!memory.isEmpty()) {
                         nextEdge = memory.getLast();
                     }
+                    //if reached the start node, set to search mode
+                    else {
+                        memory.setFinishedOnce(true);
+                        memory.setInSearchMode(true);
+                    }
                 }
             }
+        }
+
+        //search mode
+        if (memory.isInSearchMode()) {
+            assert (nextEdge == null);
+            int route = store.routeIndex;
+            nextEdge = agent.getCurrentNode().getEdge(route);
+            route += 1;
+            route = route % agent.getCurrentNode().getEdgeSet().size();
+            store.setRouteIndex(route);
         }
 
         return nextEdge;
@@ -122,7 +120,7 @@ public class ExtendedDDFS implements Algorithm {
     public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
         for (Agent a: agents) {
             MaEDDfsMemory memory = (MaEDDfsMemory)a.getMemory();
-            if (!memory.isInSearchMode() && !memory.isFinishedOnce()) {
+            if (!memory.isInSearchMode()) {
                 return false;
             }
         }
@@ -132,7 +130,7 @@ public class ExtendedDDFS implements Algorithm {
     @Data
     public static class MaEDDfsMemory extends LinkedList<Edge> {
         private boolean finishedOnce = false;
-        public boolean isInSearchMode = true;
+        private boolean inSearchMode = true;
     }
 
     @Data
