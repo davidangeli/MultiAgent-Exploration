@@ -1,6 +1,7 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.Algorithm;
+import main.java.explore.graph.EdgeState;
 import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Edge;
@@ -173,12 +174,13 @@ public class TestCase implements Callable<int[]> {
     }
 
     private int[] getStatistics(LinkedList<Integer> results) {
-        int[] stats = new int[4];
+        int[] stats = new int[5];
 
-        stats[0] = Collections.min(results);
-        stats[1] = Collections.max(results);
-        stats[2] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
-        stats[3] =(int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[2],2)).reduce(0.0, Double::sum) / ((double) results.size()));
+        stats[0] = graph.getEdgeSet().stream().allMatch(e -> e.getAttribute(Algorithm.EDGESTATEID) == EdgeState.VISITED) ? 1 : 0;
+        stats[1] = Collections.min(results);
+        stats[2] = Collections.max(results);
+        stats[3] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
+        stats[4] =(int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[2],2)).reduce(0.0, Double::sum) / ((double) results.size()));
         return stats;
     }
 
@@ -210,7 +212,9 @@ public class TestCase implements Callable<int[]> {
                 algorithm.getName() + ";" +
                 agents.size() + ";" +
                 graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL) + ";" +
+                graph.getAttribute(GraphManager.GRAPH_SIZE_LABEL) + ";" +
                 graph.getNodeCount() + ";" +
+                graph.getAttribute(GraphManager.GRAPH_DEGREE_LABEL) + ";" +
                 graph.getEdgeCount() + ";" +
                 repeats;
     }
