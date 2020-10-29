@@ -96,7 +96,6 @@ public class ExtendedDDFS implements Algorithm {
                     }
                     //if reached the start node, set to search mode
                     else {
-                        memory.setFinishedOnce(true);
                         memory.setInSearchMode(true);
                     }
                 }
@@ -129,7 +128,6 @@ public class ExtendedDDFS implements Algorithm {
 
     @Data
     public static class MaEDDfsMemory extends LinkedList<Edge> {
-        private boolean finishedOnce = false;
         private boolean inSearchMode = true;
     }
 
