@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestCase implements Callable<int[]> {
     protected static int idc;
@@ -28,9 +30,12 @@ public class TestCase implements Callable<int[]> {
     private boolean runsInGui = false;
     private int agentNum, stepCount;
 
+    private static final Logger logger = Logger.getLogger(TestCase.class.getName());
+
     private AtomicBoolean stopped = new AtomicBoolean(true);
 
     public TestCase(Graph graph, Algorithm algorithm, int agentNum, int repeats) {
+        logger.setUseParentHandlers(true);
         this.id = ++idc;
         this.graph = graph;
         this.algorithm = algorithm;
@@ -104,6 +109,7 @@ public class TestCase implements Callable<int[]> {
 
     @Override
     public int[] call() throws Exception {
+        logger.log(Level.INFO, "TestCase" + id + " run started.");
         LinkedList<Integer> results = new LinkedList<>();
 
         for (int i = 0; i < repeats; i++) {
@@ -130,6 +136,8 @@ public class TestCase implements Callable<int[]> {
             System.out.println("Testcase run done.");
             showStepCount();
         }
+
+        logger.log(Level.INFO, "TestCase" + id + " done.");
         return getStatistics(results);
     }
 
@@ -180,7 +188,7 @@ public class TestCase implements Callable<int[]> {
         stats[1] = Collections.min(results);
         stats[2] = Collections.max(results);
         stats[3] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
-        stats[4] =(int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[2],2)).reduce(0.0, Double::sum) / ((double) results.size()));
+        stats[4] = (int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[2],2)).reduce(0.0, Double::sum) / ((double) results.size()));
         return stats;
     }
 

@@ -46,7 +46,7 @@ public class TestManager {
 
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(timeout, TimeUnit.MILLISECONDS)) {
+            if (!executorService.awaitTermination(timeout, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
                 logger.log(Level.INFO, "Executor shutdownNow() called.");
             }
