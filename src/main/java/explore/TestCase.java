@@ -111,6 +111,7 @@ public class TestCase implements Callable<int[]> {
     public int[] call() throws Exception {
         logger.log(Level.INFO, "TestCase" + id + " run started.");
         LinkedList<Integer> results = new LinkedList<>();
+        boolean explorationCheck = true;
 
         for (int i = 0; i < repeats; i++) {
             stopped.set(false);
@@ -129,6 +130,8 @@ public class TestCase implements Callable<int[]> {
                     Thread.sleep(1000);
                 }
             }
+            explorationCheck = explorationCheck &&
+                    graph.getEdgeSet().stream().allMatch(e -> e.getAttribute(Algorithm.EDGESTATEID) == EdgeState.VISITED);
             results.add(stepCount);
         }
 
@@ -138,7 +141,7 @@ public class TestCase implements Callable<int[]> {
         }
 
         logger.log(Level.INFO, "TestCase" + id + " done.");
-        return getStatistics(results);
+        return getStatistics(explorationCheck, results);
     }
 
     private synchronized void tick () {
@@ -181,10 +184,10 @@ public class TestCase implements Callable<int[]> {
         return graph;
     }
 
-    private int[] getStatistics(LinkedList<Integer> results) {
+    private int[] getStatistics(boolean explorationCheck, LinkedList<Integer> results) {
         int[] stats = new int[5];
 
-        stats[0] = graph.getEdgeSet().stream().allMatch(e -> e.getAttribute(Algorithm.EDGESTATEID) == EdgeState.VISITED) ? 1 : 0;
+        stats[0] = explorationCheck ? 1 : 0;
         stats[1] = Collections.min(results);
         stats[2] = Collections.max(results);
         stats[3] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
