@@ -10,9 +10,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 import java.util.concurrent.*;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class TestManager {
@@ -21,6 +25,7 @@ public class TestManager {
     public static final String MULTIAGENTDDFSCODE = "maddfs";
     public static final String MULTIAGENTEDDFSCODE = "maeddfs";
     private static final char COMMENTLINE = '#';
+    private static final int MIN_DEGREE = 3;
 
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
     private static final HashMap<TestCase, Future<int[]>> testCases = new HashMap<>();
@@ -127,7 +132,7 @@ public class TestManager {
         GraphType graphType = GraphManager.getGraphType(sc.next());
         //range: either a number x,x,1 or a range x,y,s
         int[] sizeRange = parseRange(sc.next());
-        int[] degreeRange = parseRange(sc.next());
+        int[] degreeRange = parseRange(sc.next(), MIN_DEGREE, sizeRange[1]-1);
         Algorithm algorithm = selectAlgorithm(sc.next());
         int[] agentRange = parseRange(sc.next());
         int repeats = sc.nextInt();
@@ -150,7 +155,20 @@ public class TestManager {
      * @return A 3 long integer array.
      * @throws NumberFormatException If the token does not have the expected integer representations.
      */
-    private int[] parseRange (String token) throws NumberFormatException {
+    private int[] parseRange(String token) throws NumberFormatException {
+        return parseRange(token, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Reads integer range information (min, max, step) from a String token.
+     * @param token String input with integer parameters
+     * @param minBound Specifies minimum acceptable value for this range.
+     * @param maxBound Specifies minimum acceptable value for this range.
+     * @return A 3 long integer array.
+     * @throws NumberFormatException If the token does not have the expected integer representations.
+     * @throws IllegalArgumentException If the value read does not fit between minBound and maxBound.
+     */
+    private int[] parseRange (String token, int minBound, int maxBound) throws IllegalArgumentException {
 
         int[] result = new int[3];
         String RANGESEPARATOR = "-";
@@ -160,6 +178,9 @@ public class TestManager {
         String[] range = parts[0].split(RANGESEPARATOR);
         result[0] = Integer.parseInt(range[0]);
         result[1] = Integer.parseInt(range[range.length-1]);
+        if (result[0] < minBound || result[1] > maxBound) {
+            throw new IllegalArgumentException("Parameter value do not fit into min and max bounds.");
+        }
         result[2] = parts.length > 1 ? Integer.parseInt(parts[1]) : 1;
 
         return result;
@@ -181,7 +202,7 @@ public class TestManager {
                 result = new ExtendedDDFS();
                 break;
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("No match for this algorithm code:" + argument);
         }
         return result;
     }
