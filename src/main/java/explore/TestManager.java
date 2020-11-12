@@ -107,7 +107,7 @@ public class TestManager {
     private void readTestCaseFile (String fileName) {
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             stream.forEach((line) -> {
-                if (line.length()>1 && line.charAt(0) == COMMENTLINE) {
+                if (line.isBlank() || line.charAt(0) == COMMENTLINE) {
                     return;
                 }
                 try {
