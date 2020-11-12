@@ -6,6 +6,7 @@ import main.java.explore.graph.EdgeState;
 import main.java.explore.graph.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 
 import java.util.*;
 
@@ -62,18 +63,23 @@ public class ExtendedDDFS implements Algorithm {
             store.setExploredBy(agent.getId());
             memory.setInSearchMode(false);
         }
+        //acquire agent id if on foreign territory
+        else if (store.getExploredBy() != agent.getId()) {
+            memory.getKnownAgentIds().add(store.getExploredBy());
+        }
     }
 
     @Override
     public Edge selectNextStep(Agent agent) {
+        Node currentNode = agent.getCurrentNode();
         Edge nextEdge = null;
-        MaEDDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
+        MaEDDfsStorage store = currentNode.getAttribute(STORAGEID);
         MaEDDfsMemory memory = (MaEDDfsMemory)agent.getMemory();
 
         //explore mode
         if (!memory.isInSearchMode()) {
             //foreign territory
-            //memory should only be in foreign if two agent start on same node:
+            //memory should only be empty in foreign if two agent start on same node:
             // but then the second starts in search mode
             if (store.getExploredBy() != agent.getId()) {
                 if (!memory.isEmpty()) {
@@ -82,7 +88,7 @@ public class ExtendedDDFS implements Algorithm {
             }
             //own territory
             else {
-                Iterator<Edge> it = agent.getCurrentNode().getEdgeIterator();
+                Iterator<Edge> it = currentNode.getEdgeIterator();
                 while (it.hasNext() && nextEdge == null) {
                     Edge edge = it.next();
                     if (edge.getAttribute(EDGESTATEID) == EdgeState.UNVISITED) {
@@ -105,10 +111,15 @@ public class ExtendedDDFS implements Algorithm {
         //search mode
         if (memory.isInSearchMode()) {
             assert (nextEdge == null);
-            int route = store.routeIndex;
-            nextEdge = agent.getCurrentNode().getEdge(route);
-            route += 1;
-            route = route % agent.getCurrentNode().getEdgeSet().size();
+            int degree = currentNode.getDegree();
+            int route = (store.routeIndex + 1) % degree;
+            nextEdge = currentNode.getEdge(route);
+            int count = 0;
+            while (nextEdge.getAttribute(EDGESTATEID) != EdgeState.UNVISITED && count < degree) {
+                route = (route + 1) % degree;
+                count++;
+                nextEdge =currentNode.getEdge(route);
+            }
             store.setRouteIndex(route);
         }
 
@@ -117,18 +128,22 @@ public class ExtendedDDFS implements Algorithm {
 
     @Override
     public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
-        for (Agent a: agents) {
-            MaEDDfsMemory memory = (MaEDDfsMemory)a.getMemory();
-            if (!memory.isInSearchMode()) {
-                return false;
+        MaEDDfsMemory memory = (MaEDDfsMemory) agent.getMemory();
+        for (Agent a : agents) {
+            if (memory.knownAgentIds.contains(a.getId())) {
+                MaEDDfsMemory memory2 = (MaEDDfsMemory) a.getMemory();
+                if (!memory2.isInSearchMode()) {
+                    return false;
+                }
             }
         }
-        return true;
+        return memory.isInSearchMode();
     }
 
     @Data
     public static class MaEDDfsMemory extends LinkedList<Edge> {
         private boolean inSearchMode = true;
+        private HashSet<Integer> knownAgentIds =new HashSet<>();
     }
 
     @Data
