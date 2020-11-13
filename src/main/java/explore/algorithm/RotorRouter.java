@@ -60,11 +60,11 @@ public class RotorRouter implements Algorithm {
 
     @Override
     public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
-        boolean edgesExplored = graph.getEdgeSet()
+        return graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.VISITED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == ((int[])graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX))[0];
-        return edgesExplored && agentHome;
+        //boolean agentHome = agent.getCurrentNode().getIndex() == ((int[])graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX))[0];
+        //return edgesExplored && agentHome;
     }
 
     public static class RRMemory {
