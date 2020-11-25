@@ -48,6 +48,7 @@ public class GraphManager {
                 return;
             case LOBSTER:
             case RANDOM:
+            case COMPLETE:
             default:
                 break;
         }

@@ -1,14 +1,12 @@
 package main.java.explore.graph;
 
-import org.graphstream.algorithm.generator.Generator;
-import org.graphstream.algorithm.generator.LobsterGenerator;
-import org.graphstream.algorithm.generator.PetersenGraphGenerator;
-import org.graphstream.algorithm.generator.RandomGenerator;
+import org.graphstream.algorithm.generator.*;
 
 public enum GraphType {
     LOBSTER ("lobster"),
     PETERSEN ("petersen"),
     RANDOM ("random"),
+    COMPLETE ("complete"),
     TUTORIAL ("tutorial");
 
     public final String code;
@@ -28,6 +26,9 @@ public enum GraphType {
                 break;
             case RANDOM:
                 generator = new RandomGenerator(avgDegree, false, false);
+                break;
+            case COMPLETE:
+                generator = new FullGenerator();
                 break;
             default:
                 generator = null;

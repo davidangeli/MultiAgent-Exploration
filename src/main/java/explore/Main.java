@@ -15,7 +15,7 @@ public class Main {
     private static final String CONFIGFILE = "/config.properties";
     private static final String DEFAULT_INPUT_FILE = "input.txt";
     private static final String DEFAULT_OUTPUT_FILE = "output.txt";
-    public final static int GUI_GRAPHSIZE = 30, GUI_GRAPH_DEGREE = 4, GUI_AGENTNUM = 2;
+    public final static int GUI_GRAPHSIZE = 20, GUI_GRAPH_DEGREE = 4, GUI_AGENTNUM = 2;
     public final static GraphType GUI_GRAPHTYPE = GraphType.TUTORIAL;
     public final static String GUI_ALGORITHM = TestManager.MULTIAGENTDFSCODE;
     private static final Properties properties = new Properties();
