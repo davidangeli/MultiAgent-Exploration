@@ -131,7 +131,7 @@ public class TestCase implements Callable<int[]> {
                 }
             }
             explorationCheck = explorationCheck &&
-                    graph.getEdgeSet().stream().allMatch(e -> e.getAttribute(Algorithm.EDGESTATEID) == EdgeState.VISITED);
+                    graph.getEdgeSet().stream().allMatch(e -> e.getAttribute(Algorithm.EDGESTATEID) != EdgeState.UNVISITED);
             results.add(stepCount);
         }
 
@@ -191,7 +191,7 @@ public class TestCase implements Callable<int[]> {
         stats[1] = Collections.min(results);
         stats[2] = Collections.max(results);
         stats[3] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
-        stats[4] = (int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[2],2)).reduce(0.0, Double::sum) / ((double) results.size()));
+        stats[4] = (int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[3],2)).reduce(0.0, Double::sum) / ((double) results.size()));
         return stats;
     }
 

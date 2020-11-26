@@ -50,7 +50,9 @@ public class DFS implements Algorithm {
         }
 
         //mark the fromEdge as used
-        if (fromEdge != null) EdgeState.VISITED.setEdge(fromEdge);
+        if (fromEdge != null && fromEdge.getAttribute(EDGESTATEID) != EdgeState.FINISHED) {
+            EdgeState.VISITED.setEdge(fromEdge);
+        }
 
         //if the agent has been here before (->fromEdge cannot be null)
         if (!firsVisit) EdgeState.FINISHED.setEdge(fromEdge);
@@ -101,12 +103,12 @@ public class DFS implements Algorithm {
             return to.get();
         }
 
-        //otherwise - no unused edge, go back, using the original entry if exists
+        //otherwise - no unused edge, go back, using the original entry
         if (originalEdge != null){
             currentVisit.setTo(originalEdge);
             return originalEdge;
         } else {
-            //btw this can only happen at the very first step at startnode
+            //this can not happen
             currentVisit.setTo(fromEdge);
             return fromEdge;
         }
@@ -114,11 +116,16 @@ public class DFS implements Algorithm {
 
     @Override
     public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
-        boolean edgesExplored = graph.getEdgeSet()
-                .stream()
-                .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == ((int[])graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX))[0];
-        return edgesExplored && agentHome;
+        //get storage and memory
+        MaDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
+
+        boolean onStartNode = store.stream()
+                .anyMatch(v -> v.original && v.agent == agent && v.from == null);
+
+        boolean allEdgesDone = agent.getCurrentNode().getEdgeSet()
+                .stream().allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
+
+        return allEdgesDone && onStartNode;
     }
 
     public static class MaDfsMemory {

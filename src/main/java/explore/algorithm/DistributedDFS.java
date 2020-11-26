@@ -6,7 +6,6 @@ import main.java.explore.graph.EdgeState;
 import main.java.explore.graph.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 
 import java.util.ArrayList;
 import java.util.Iterator;
