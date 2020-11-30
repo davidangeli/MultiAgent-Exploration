@@ -44,7 +44,9 @@ public class Main {
 
         if (args.length == 0) {
             TestCase testCase;
-            Graph graph = GraphManager.getGraph(GUI_GRAPHTYPE, GUI_GRAPHSIZE, GUI_GRAPH_DEGREE);
+            int graphSize = getIntProperty(properties, "gui.graph_size", GUI_GRAPHSIZE);
+            int graphAvgDegree = getIntProperty(properties, "gui.graph_avgdegree", GUI_GRAPH_DEGREE);
+            Graph graph = GraphManager.getGraph(GUI_GRAPHTYPE, graphSize, graphAvgDegree);
             testCase = new TestCase(graph);
             Gui frame = new Gui(testCase);
             frame.setVisible(true);
@@ -102,6 +104,19 @@ public class Main {
         }
 
         logger.setLevel(Level.parse(properties.getProperty("app.loglevel")));
+    }
+
+    public static int getIntProperty(Properties properties, String key, int defaultValue) {
+        if (properties.containsKey(key)) {
+            try {
+                return Integer.parseInt(properties.getProperty(key));
+            }
+            catch (NumberFormatException e) {
+                logger.log(Level.INFO, "Cannot parse integer from property value of " + key);
+            }
+        }
+        logger.log(Level.INFO, "Using default property value of " + key);
+        return defaultValue;
     }
 
     private static void endLogging() {
