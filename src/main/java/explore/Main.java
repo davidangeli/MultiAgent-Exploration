@@ -13,7 +13,6 @@ import java.util.logging.*;
 
 public class Main {
     private static final String CONFIGFILE = "/config.properties";
-    private static final String DEFAULT_INPUT_FILE = "input.txt";
     private static final String DEFAULT_OUTPUT_FILE = "output.txt";
     public final static int GUI_GRAPHSIZE = 20, GUI_GRAPH_DEGREE = 4, GUI_AGENTNUM = 2;
     public final static int TESTCASE_TIMEOUT = 1200, TESTCASE_MINDEGREE = 3;
@@ -54,8 +53,7 @@ public class Main {
             logger.log(Level.INFO, "Graphical interface started.");
         }
         else {
-            TestManager testManager = new TestManager(DEFAULT_INPUT_FILE, DEFAULT_OUTPUT_FILE, properties);
-            logger.log(Level.INFO, "TestManager created.");
+            TestManager testManager = new TestManager(args[0], args.length > 1 ? args[1] : DEFAULT_OUTPUT_FILE, properties);
         }
     }
 

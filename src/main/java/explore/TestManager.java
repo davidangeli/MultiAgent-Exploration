@@ -30,7 +30,26 @@ public class TestManager {
     public TestManager(String inputFile, String outputFile, Properties properties) {
         this.properties = properties;
         logger.setUseParentHandlers(true);
-        readTestCaseFile(inputFile);
+
+        //read input file
+        try {
+            readTestCaseFile(inputFile);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Test cases input file could not be opened.");
+            return;
+        }
+
+        //check output file, write headers
+        try {
+            printResultsHeaders(outputFile);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Test cases output file could not be opened.");
+            return;
+        }
+
+        logger.log(Level.INFO, "TestManager created.");
+
+        //do the things
         runTests();
         printResults(outputFile);
     }
@@ -54,11 +73,18 @@ public class TestManager {
         logger.log(Level.INFO, "Executor done.");
     }
 
+    private void printResultsHeaders(String outputFile) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+        writer.write("Testcase;Algorithm;Agents;GraphType;GraphSize;Nodes;AvgDegree;Edges;Repeats;allEdgeVisited;minSteps;maxSteps;avgSteps;deviation");
+        writer.newLine();
+        writer.flush();
+        writer.close();
+        logger.log(Level.INFO, "Results headers written into the output file.");
+    }
+
     private void printResults(String outputFile) {
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            writer.write("Testcase;Algorithm;Agents;GraphType;GraphSize;Nodes;AvgDegree;Edges;Repeats;allEdgeVisited;minSteps;maxSteps;avgSteps;deviation");
-            writer.newLine();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, true))) {
             testCases.forEach((tc, f) -> {
 
                 try {
@@ -84,28 +110,22 @@ public class TestManager {
         }
     }
 
-    private void readTestCaseFile (String fileName) {
+    private void readTestCaseFile (String fileName) throws IOException {
         int minDegree = Main.getIntProperty(properties, "testcase.min_degree", Main.TESTCASE_MINDEGREE);
-
-        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            stream.forEach((line) -> {
-                if (line.isBlank() || line.charAt(0) == COMMENTLINE) {
-                    return;
-                }
-                try {
-                    parseInputLine(line, minDegree);
-                    logger.log(Level.INFO, "Test cases added: {0}", new Object[]{line});
-                }
-                catch (Exception ex) {
-                    logger.log(Level.WARNING, "Test cases parse error: {0}: {1}", new Object[]{line, ex.getMessage()});
-                }
-            });
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Test cases file could not be opened.");
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            logger.log(Level.SEVERE, "Test cases file parameter error.");
-        }
+        Stream<String> stream = Files.lines(Paths.get(fileName));
+        stream.forEach((line) -> {
+            if (line.isBlank() || line.charAt(0) == COMMENTLINE) {
+                return;
+            }
+            try {
+                parseInputLine(line, minDegree);
+                logger.log(Level.INFO, "Test cases added: {0}", new Object[]{line});
+            }
+            catch (Exception ex) {
+                logger.log(Level.WARNING, "Test cases parse error: {0}: {1}", new Object[]{line, ex.getMessage()});
+            }
+        });
+        stream.close();
     }
 
     private void parseInputLine (String line, int minDegree) throws IllegalArgumentException, InputMismatchException, NullPointerException {
