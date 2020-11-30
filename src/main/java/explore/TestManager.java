@@ -10,10 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,26 +22,22 @@ public class TestManager {
     public static final String MULTIAGENTDDFSCODE = "maddfs";
     public static final String MULTIAGENTEDDFSCODE = "maeddfs";
     private static final char COMMENTLINE = '#';
-    private static final int MIN_DEGREE = 3;
 
+    private final Properties properties;
+    private final HashMap<TestCase, Future<int[]>> testCases = new HashMap<>();
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
-    private static final HashMap<TestCase, Future<int[]>> testCases = new HashMap<>();
 
-    public TestManager(String inputFile, String outputFile, int timeout) {
+    public TestManager(String inputFile, String outputFile, Properties properties) {
+        this.properties = properties;
         logger.setUseParentHandlers(true);
         readTestCaseFile(inputFile);
-        runTests(timeout);
+        runTests();
         printResults(outputFile);
     }
 
-    public TestManager(String inputFile, int timeout) {
-        logger.setUseParentHandlers(true);
-        readTestCaseFile(inputFile);
-        runTests(timeout);
-        printResults();
-    }
+    private void runTests() {
+        int timeout = Main.getIntProperty(properties, "testcase.timeout", Main.TESTCASE_TIMEOUT);
 
-    private void runTests(int timeout) {
         ExecutorService executorService = Executors.newCachedThreadPool();
         testCases.entrySet().forEach(tc -> tc.setValue(executorService.submit(tc.getKey())));
         logger.log(Level.INFO, "Submitted cases to the executor.");
@@ -91,27 +84,16 @@ public class TestManager {
         }
     }
 
-    private void printResults() {
-        testCases.forEach((tc, f) -> {
-            String result = "exception";
-            try {
-                result = f.isDone() ? Arrays.toString(f.get()) : "timeout";
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            logger.log(Level.INFO, "{0} results: {1} ", new Object[]{tc, result});
-        });
-    }
-
     private void readTestCaseFile (String fileName) {
+        int minDegree = Main.getIntProperty(properties, "testcase.min_degree", Main.TESTCASE_MINDEGREE);
+
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             stream.forEach((line) -> {
                 if (line.isBlank() || line.charAt(0) == COMMENTLINE) {
                     return;
                 }
                 try {
-                    parseInputLine(line);
+                    parseInputLine(line, minDegree);
                     logger.log(Level.INFO, "Test cases added: {0}", new Object[]{line});
                 }
                 catch (Exception ex) {
@@ -126,13 +108,13 @@ public class TestManager {
         }
     }
 
-    private void parseInputLine (String line) throws IllegalArgumentException, InputMismatchException, NullPointerException {
+    private void parseInputLine (String line, int minDegree) throws IllegalArgumentException, InputMismatchException, NullPointerException {
         Scanner sc = new Scanner (line);
 
         GraphType graphType = GraphManager.getGraphType(sc.next());
         //range: either a number x,x,1 or a range x,y,s
         int[] sizeRange = parseRange(sc.next());
-        int[] degreeRange = parseRange(sc.next(), MIN_DEGREE, sizeRange[1]-1);
+        int[] degreeRange = parseRange(sc.next(), minDegree, sizeRange[1]-1);
         Algorithm algorithm = selectAlgorithm(sc.next());
         int[] agentRange = parseRange(sc.next());
         int repeats = sc.nextInt();

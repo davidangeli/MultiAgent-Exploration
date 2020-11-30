@@ -6,9 +6,27 @@
 #random 20-50 4-20:5 rr 2-10 20
 
 #compare algorithms with different number of agents
-#random 200 10 rr 5-50:5 30
-#random 200 10 madfs 5-50:5 30
-#random 200 10 maddfs 5-50:5 30
-#random 200 10 maeddfs 5-50:5 30
+lobster 200 10 rr 5-50:2 30
+lobster 200 10 rr 50 30
+lobster 200 10 madfs 5-50:2 30
+lobster 200 10 madfs 50 30
+lobster 200 10 maddfs 5-50:2 30
+lobster 200 10 maddfs 50 30
+lobster 200 10 maeddfs 5-50:2 30
+lobster 200 10 maeddfs 50 30
+
+# graph types
+#lobster 300 4 rr 5-20 50
+#random 300 10 rr 5-10:5 50
+#lobster 300 4 madfs 5-20 50
+#random 300 10 madfs 5-10:5 50
+#lobster 300 4 maddfs 5-20 50
+#random 300 10 maddfs 5-10:5 50
+#lobster 300 4 maeddfs 5-20 50
+#random 300 10 maeddfs 5-10:5 50
 
 #compare algorithms on different graph densities
+#random 300 5-50:5 rr 10 50
+#random 300 5-50:5 madfs 10 50
+#random 300 5-50:5 maddfs 10 50
+#random 300 5-50:5 maeddfs 10 50
