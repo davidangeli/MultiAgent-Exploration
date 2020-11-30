@@ -112,13 +112,14 @@ public class TestManager {
 
     private void readTestCaseFile (String fileName) throws IOException {
         int minDegree = Main.getIntProperty(properties, "testcase.min_degree", Main.TESTCASE_MINDEGREE);
+        int maxDegree = Main.getIntProperty(properties, "testcase.max_degree", Main.TESTCASE_MAXDEGREE);
         Stream<String> stream = Files.lines(Paths.get(fileName));
         stream.forEach((line) -> {
             if (line.isBlank() || line.charAt(0) == COMMENTLINE) {
                 return;
             }
             try {
-                parseInputLine(line, minDegree);
+                parseInputLine(line, minDegree, maxDegree);
                 logger.log(Level.INFO, "Test cases added: {0}", new Object[]{line});
             }
             catch (Exception ex) {
@@ -128,13 +129,13 @@ public class TestManager {
         stream.close();
     }
 
-    private void parseInputLine (String line, int minDegree) throws IllegalArgumentException, InputMismatchException, NullPointerException {
+    private void parseInputLine (String line, int minDegree, int maxDegree) throws IllegalArgumentException, InputMismatchException, NullPointerException {
         Scanner sc = new Scanner (line);
 
         GraphType graphType = GraphManager.getGraphType(sc.next());
         //range: either a number x,x,1 or a range x,y,s
         int[] sizeRange = parseRange(sc.next());
-        int[] degreeRange = parseRange(sc.next(), minDegree, sizeRange[1]-1);
+        int[] degreeRange = parseRange(sc.next(), minDegree, Integer.min(maxDegree, sizeRange[1]-1));
         Algorithm algorithm = selectAlgorithm(sc.next());
         int[] agentRange = parseRange(sc.next());
         int repeats = sc.nextInt();

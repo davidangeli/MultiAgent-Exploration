@@ -2,18 +2,19 @@
 
 #random testcase examples
 #lobster 100 4 madfs 2-5 10
-#random 300 2-10:2 madfs 30 50
+random 100 5 maddfs 30 50
+random 100 8 maddfs 30 50
 #random 20-50 4-20:5 rr 2-10 20
 
 #compare algorithms with different number of agents
-lobster 200 10 rr 5-50:2 30
-lobster 200 10 rr 50 30
-lobster 200 10 madfs 5-50:2 30
-lobster 200 10 madfs 50 30
-lobster 200 10 maddfs 5-50:2 30
-lobster 200 10 maddfs 50 30
-lobster 200 10 maeddfs 5-50:2 30
-lobster 200 10 maeddfs 50 30
+#lobster 200 10 rr 5-50:2 30
+#lobster 200 10 rr 50 30
+#lobster 200 10 madfs 5-50:2 30
+#lobster 200 10 madfs 50 30
+#lobster 200 10 maddfs 5-50:2 30
+#lobster 200 10 maddfs 50 30
+#lobster 200 10 maeddfs 5-50:2 30
+#lobster 200 10 maeddfs 50 30
 
 # graph types
 #lobster 300 4 rr 5-20 50
