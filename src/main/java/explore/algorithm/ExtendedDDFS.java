@@ -112,7 +112,7 @@ public class ExtendedDDFS implements Algorithm {
         if (memory.isInSearchMode()) {
             assert (nextEdge == null);
             int degree = currentNode.getDegree();
-            int route = (store.routeIndex + 1) % degree;
+            int route = store.routeIndex;
             nextEdge = currentNode.getEdge(route);
             int count = 0;
             while (nextEdge.getAttribute(EDGESTATEID) != EdgeState.UNVISITED && count < degree) {
@@ -120,7 +120,7 @@ public class ExtendedDDFS implements Algorithm {
                 count++;
                 nextEdge =currentNode.getEdge(route);
             }
-            store.setRouteIndex(route);
+            store.setRouteIndex((route + 1) % degree);
         }
 
         return nextEdge;
