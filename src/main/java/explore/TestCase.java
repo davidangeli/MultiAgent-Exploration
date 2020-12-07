@@ -1,6 +1,7 @@
 package main.java.explore;
 
 import main.java.explore.algorithm.Algorithm;
+import main.java.explore.graph.EdgeState;
 import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Edge;
@@ -13,6 +14,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestCase implements Callable<int[]> {
     protected static int idc;
@@ -27,9 +30,12 @@ public class TestCase implements Callable<int[]> {
     private boolean runsInGui = false;
     private int agentNum, stepCount;
 
+    private static final Logger logger = Logger.getLogger(TestCase.class.getName());
+
     private AtomicBoolean stopped = new AtomicBoolean(true);
 
     public TestCase(Graph graph, Algorithm algorithm, int agentNum, int repeats) {
+        logger.setUseParentHandlers(true);
         this.id = ++idc;
         this.graph = graph;
         this.algorithm = algorithm;
@@ -49,25 +55,25 @@ public class TestCase implements Callable<int[]> {
      * @param graphType Type of the graph. If changes, the graph will be reset.
      * @param algorithm Algorithm.
      * @param agentNum Number of agents.
-     * @param resetGraph Boolean setting if the graph should be reset. In case of new graph type, the graph will be reset anyways.
+     * @param regenerateGraph Boolean setting if the graph should be reset. In case of new graph type, the graph will be reset anyways.
      */
-    public synchronized void init(GraphType graphType, Algorithm algorithm, int agentNum, boolean resetGraph) {
+    public synchronized void init(GraphType graphType, Algorithm algorithm, int agentNum, boolean regenerateGraph) {
         assert(runsInGui);
         assert(stopped.get() || paused);
         GraphType oldGrapType = graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL);
         graph.setAttribute(GraphManager.GRAPH_TYPE_LABEL, graphType);
         this.algorithm = algorithm;
         this.agentNum = agentNum;
-        reset(resetGraph || oldGrapType != graphType);
+        reset(regenerateGraph || oldGrapType != graphType);
     }
 
     /**
      * Resets the test case.
-     * @param resetGraph Set true if the graph should be renewed as well.
+     * @param regenerateGraph Set true if the graph should be renewed as well.
      */
-    private synchronized void reset(boolean resetGraph) {
-        if (resetGraph) {
-            GraphManager.resetGraph(graph);
+    private synchronized void reset(boolean regenerateGraph) {
+        if (regenerateGraph) {
+            GraphManager.regenerateGraph(graph);
         }
         paused = runsInGui;
         algorithm.init(graph, agents, agentNum);
@@ -75,7 +81,7 @@ public class TestCase implements Callable<int[]> {
 
         if (runsInGui) {
             algorithm.createLabels(graph);
-            algorithm.updateLabels(agents);
+            algorithm.updateLabels(graph, agents);
             showStepCount();
         }
     }
@@ -103,7 +109,9 @@ public class TestCase implements Callable<int[]> {
 
     @Override
     public int[] call() throws Exception {
+        logger.log(Level.INFO, "TestCase" + id + " run started.");
         LinkedList<Integer> results = new LinkedList<>();
+        boolean explorationCheck = true;
 
         for (int i = 0; i < repeats; i++) {
             stopped.set(false);
@@ -122,13 +130,18 @@ public class TestCase implements Callable<int[]> {
                     Thread.sleep(1000);
                 }
             }
+            explorationCheck = explorationCheck &&
+                    graph.getEdgeSet().stream().allMatch(e -> e.getAttribute(Algorithm.EDGESTATEID) != EdgeState.UNVISITED);
             results.add(stepCount);
         }
 
         if (runsInGui) {
+            System.out.println("Testcase run done.");
             showStepCount();
         }
-        return getStatistics(results);
+
+        logger.log(Level.INFO, "TestCase" + id + " done.");
+        return getStatistics(explorationCheck, results);
     }
 
     private synchronized void tick () {
@@ -139,7 +152,7 @@ public class TestCase implements Callable<int[]> {
         //this has to be done in a different cycle from the move-evaluation
         HashMap<Agent, Edge> agentNextStep = new HashMap<>();
         agents.stream().filter(Agent::isRunning).forEach(a -> {
-            if (algorithm.agentStops(graph, a)) {
+            if (algorithm.agentStops(graph, agents, a)) {
                 a.stop();
             } else {
                 agentNextStep.put(a, algorithm.selectNextStep(a));
@@ -154,16 +167,16 @@ public class TestCase implements Callable<int[]> {
             algorithm.evaluateOnArrival(a, moveOn);
         });
 
-        //update labels if
-        if (runsInGui) {
-            algorithm.updateLabels(agents);
-            showStepCount();
-        }
-
         //check finished state
         if (allDone.get()) {
             stopped.set(true);
             //System.out.println("Graph explored! " + statistics);
+        }
+
+        //update labels if
+        if (runsInGui) {
+            algorithm.updateLabels(graph, agents);
+            showStepCount();
         }
     }
 
@@ -171,19 +184,20 @@ public class TestCase implements Callable<int[]> {
         return graph;
     }
 
-    private int[] getStatistics(LinkedList<Integer> results) {
-        int[] stats = new int[4];
+    private int[] getStatistics(boolean explorationCheck, LinkedList<Integer> results) {
+        int[] stats = new int[5];
 
-        stats[0] = Collections.min(results);
-        stats[1] = Collections.max(results);
-        stats[2] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
-        stats[3] =(int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[2],2)).reduce(0.0, Double::sum) / ((double) results.size()));
+        stats[0] = explorationCheck ? 1 : 0;
+        stats[1] = Collections.min(results);
+        stats[2] = Collections.max(results);
+        stats[3] = (int)(((double)results.stream().reduce(0, Integer::sum)) / ((double) results.size()));
+        stats[4] = (int)Math.sqrt(results.stream().map(i -> Math.pow(i-stats[3],2)).reduce(0.0, Double::sum) / ((double) results.size()));
         return stats;
     }
 
     private void showStepCount() {
         assert (runsInGui);
-        stepCountLabel.setText(Gui.STEP_COUNT_LABEL + stepCount);
+        stepCountLabel.setText((stopped.get() ? Gui.STEP_TOTAL_LABEL : Gui.STEP_COUNT_LABEL) + stepCount);
     }
 
     public void setStepCountLabel(JLabel stepCountLabel) {
@@ -209,7 +223,9 @@ public class TestCase implements Callable<int[]> {
                 algorithm.getName() + ";" +
                 agents.size() + ";" +
                 graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL) + ";" +
+                graph.getAttribute(GraphManager.GRAPH_SIZE_LABEL) + ";" +
                 graph.getNodeCount() + ";" +
+                graph.getAttribute(GraphManager.GRAPH_DEGREE_LABEL) + ";" +
                 graph.getEdgeCount() + ";" +
                 repeats;
     }

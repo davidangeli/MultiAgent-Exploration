@@ -14,24 +14,25 @@ import java.util.stream.Collectors;
 /**
  * This algorithm uses no agent memory, but storage on each node.
  */
-public class MultiAgentDFS implements Algorithm {
+public class DFS implements Algorithm {
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
-        //startnode
-        Node startNode = graph.getNode(DEFAULT_START_INDEX);
-        GraphManager.setStartNodeStyle(graph, DEFAULT_START_INDEX);
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MaDfsStorage()));
-        //agents
+
+        //(re)set start nodes and edges style and labels
+        int[] startNodeIndexes = {DEFAULT_START_INDEX};
+        GraphManager.resetGraph(graph, startNodeIndexes);
+
+        //create agents
+        Node startNode = graph.getNode(startNodeIndexes[0]);
         for (int i =0; i < agentNum; i++) {
             Agent agent = new Agent(startNode);
             agents.add(agent);
             evaluateOnArrival(agent, null);
         }
-        //set edges to gray
-        graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
     }
 
     @Override
@@ -49,7 +50,9 @@ public class MultiAgentDFS implements Algorithm {
         }
 
         //mark the fromEdge as used
-        if (fromEdge != null) EdgeState.VISITED.setEdge(fromEdge);
+        if (fromEdge != null && fromEdge.getAttribute(EDGESTATEID) != EdgeState.FINISHED) {
+            EdgeState.VISITED.setEdge(fromEdge);
+        }
 
         //if the agent has been here before (->fromEdge cannot be null)
         if (!firsVisit) EdgeState.FINISHED.setEdge(fromEdge);
@@ -100,24 +103,29 @@ public class MultiAgentDFS implements Algorithm {
             return to.get();
         }
 
-        //otherwise - no unused edge, go back, using the original entry if exists
+        //otherwise - no unused edge, go back, using the original entry
         if (originalEdge != null){
             currentVisit.setTo(originalEdge);
             return originalEdge;
         } else {
-            //btw this can only happen at the very first step at startnode
+            //this can not happen
             currentVisit.setTo(fromEdge);
             return fromEdge;
         }
     }
 
     @Override
-    public boolean agentStops(Graph graph, Agent agent) {
-        boolean edgesExplored = graph.getEdgeSet()
-                .stream()
-                .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == (int)graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX);
-        return edgesExplored && agentHome;
+    public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
+        //get storage and memory
+        MaDfsStorage store = agent.getCurrentNode().getAttribute(STORAGEID);
+
+        boolean onStartNode = store.stream()
+                .anyMatch(v -> v.original && v.agent == agent && v.from == null);
+
+        boolean allEdgesDone = agent.getCurrentNode().getEdgeSet()
+                .stream().allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.FINISHED);
+
+        return allEdgesDone && onStartNode;
     }
 
     public static class MaDfsMemory {

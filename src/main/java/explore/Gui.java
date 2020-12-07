@@ -14,6 +14,7 @@ public class Gui extends JFrame {
     private final TestCase testCase;
     private final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
     public final static String STEP_COUNT_LABEL = "Step count: ";
+    public final static String STEP_TOTAL_LABEL = "Steps total: ";
     private JButton btnStartStop;
     private JComboBox<GraphType> cmbGraphType;
     private JComboBox<String> cmbAlgorithm;
@@ -22,7 +23,7 @@ public class Gui extends JFrame {
     public Gui (TestCase testCase) {
         this.setTitle("Multi Agent Graph Exploration");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setSize(800, 800);
+        this.setSize(900, 800);
         this.setLocationRelativeTo(null);
         this.testCase = testCase;
 
@@ -59,8 +60,8 @@ public class Gui extends JFrame {
     }
     
     private void setControlPanel () {
-        Dimension labelSize = new Dimension(100,20);
-        Dimension comboSize = new Dimension(100,20);
+        Dimension labelSize = new Dimension(150,22);
+        Dimension comboSize = new Dimension(100,22);
 
         //graph type
         JLabel lblGraphType = new JLabel("New graph:");
@@ -70,7 +71,12 @@ public class Gui extends JFrame {
         //algorithm
         JLabel lblAlgorithm = new JLabel("Algorithm:");
         setComponentSize(lblAlgorithm, labelSize, true);
-        cmbAlgorithm = new JComboBox<>(new String[] {TestManager.MULTIAGENTDFSCODE, TestManager.ROTORROUTERCODE});
+        cmbAlgorithm = new JComboBox<>(new String[] {
+                TestManager.MULTIAGENTDFSCODE,
+                TestManager.MULTIAGENTDDFSCODE,
+                TestManager.MULTIAGENTEDDFSCODE,
+                TestManager.ROTORROUTERCODE
+        });
         setComponentSize(cmbAlgorithm, comboSize, false);
         //number of agents
         JLabel lblNumberOfAgents = new JLabel("Agents:");
@@ -78,11 +84,14 @@ public class Gui extends JFrame {
         cmbNumberOfAgents = new JComboBox<>(new Integer[] {1, 2, 3});
         setComponentSize(cmbNumberOfAgents, comboSize, false);
         //restart button
-        JButton btnRestart = new JButton("Restart");
+        JButton btnRestart = new JButton("Reset");
+        setComponentSize(btnRestart, comboSize, false);
         //next
         JButton btnNextStep = new JButton("Next step");
+        setComponentSize(btnNextStep, comboSize, false);
         //start-stop
         btnStartStop = new JButton("Start / stop");
+        setComponentSize(btnStartStop, comboSize, false);
 
         //ActionListeners
         cmbGraphType.addActionListener(e -> {
@@ -97,34 +106,47 @@ public class Gui extends JFrame {
         btnNextStep.addActionListener(e -> testCase.tickOne());
         btnStartStop.addActionListener(e -> testCase.start());
 
-        JPanel controlPanel = new JPanel();
-        JPanel controlPanel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        controlPanel1.setBorder(new EmptyBorder(10, 0, 0, 0));
-        JPanel controlPanel2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel controlPanel3 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel controlPanel4 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        controlPanel1.add(lblGraphType);
-        controlPanel1.add(cmbGraphType);
-        controlPanel2.add(lblAlgorithm);
-        controlPanel2.add(cmbAlgorithm);
-        controlPanel2.add(lblNumberOfAgents);
-        controlPanel2.add(cmbNumberOfAgents);
-        controlPanel2.add(Box.createRigidArea(new Dimension(5, 0)));
-        controlPanel2.add(btnRestart);
-        controlPanel4.add(btnNextStep);
-        controlPanel4.add(Box.createRigidArea(new Dimension(5, 0)));
-        controlPanel4.add(btnStartStop);
-
         JLabel stepCountLabel = new JLabel(STEP_COUNT_LABEL);
-        setComponentSize(stepCountLabel, new Dimension(200,20), false);
-        controlPanel3.add(stepCountLabel);
+        setComponentSize(stepCountLabel, comboSize, false);
         testCase.setStepCountLabel(stepCountLabel);
 
-        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
-        controlPanel.add(controlPanel1);
-        controlPanel.add(controlPanel2);
-        controlPanel.add(controlPanel3);
-        controlPanel.add(controlPanel4);
+        //controlPanel2.add(Box.createRigidArea(new Dimension(5, 0)));
+        // controlPanel1.setBorder(new EmptyBorder(10, 0, 0, 0));
+        JPanel controlPanelA = new JPanel();
+        controlPanelA.setLayout(new BoxLayout(controlPanelA, BoxLayout.Y_AXIS));
+        JPanel controlPanelA1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel controlPanelA2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel controlPanelA3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel controlPanelA4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        controlPanelA4.setBorder(new EmptyBorder(0, 15, 0, 5));
+        controlPanelA1.add(lblGraphType);
+        controlPanelA1.add(cmbGraphType);
+        controlPanelA2.add(lblAlgorithm);
+        controlPanelA2.add(cmbAlgorithm);
+        controlPanelA3.add(lblNumberOfAgents);
+        controlPanelA3.add(cmbNumberOfAgents);
+        controlPanelA4.add(btnRestart);
+        controlPanelA.add(controlPanelA1);
+        controlPanelA.add(controlPanelA2);
+        controlPanelA.add(controlPanelA3);
+        controlPanelA.add(controlPanelA4);
+
+        JPanel controlPanelB = new JPanel();
+        controlPanelB.setLayout(new BoxLayout(controlPanelB, BoxLayout.Y_AXIS));
+        JPanel controlPanelB1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel controlPanelB2 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel controlPanelB3 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        controlPanelB1.add(stepCountLabel);
+        controlPanelB2.add(btnNextStep);
+        controlPanelB3.add(btnStartStop);
+        controlPanelB.add(controlPanelB1);
+        controlPanelB.add(controlPanelB2);
+        controlPanelB.add(controlPanelB3);
+
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
+        controlPanel.add(controlPanelA);
+        controlPanel.add(controlPanelB);
         splitPane.setLeftComponent(controlPanel);
     }
 
@@ -134,6 +156,12 @@ public class Gui extends JFrame {
         component.setMaximumSize(dimension);
         if (bordersToo) {
             component.setBorder(new EmptyBorder(0, 15, 0, 5));
+        }
+        if (component.getClass() == JButton.class) {
+            component.setFont(new Font("Serif", Font.PLAIN, 14));
+        }
+        else {
+            component.setFont(new Font("Serif", Font.PLAIN, 16));
         }
     }
 }

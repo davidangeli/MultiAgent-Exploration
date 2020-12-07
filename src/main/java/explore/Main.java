@@ -13,9 +13,9 @@ import java.util.logging.*;
 
 public class Main {
     private static final String CONFIGFILE = "/config.properties";
-    private static final String DEFAULT_INPUT_FILE = "input.txt";
     private static final String DEFAULT_OUTPUT_FILE = "output.txt";
-    public final static int GUI_GRAPHSIZE = 8, GUI_GRAPH_DEGREE = 4, GUI_AGENTNUM = 2;
+    public final static int GUI_GRAPHSIZE = 20, GUI_GRAPH_DEGREE = 4, GUI_AGENTNUM = 2;
+    public final static int TESTCASE_TIMEOUT = 1200, TESTCASE_MINDEGREE = 3, TESTCASE_MAXDEGREE = Integer.MAX_VALUE;
     public final static GraphType GUI_GRAPHTYPE = GraphType.TUTORIAL;
     public final static String GUI_ALGORITHM = TestManager.MULTIAGENTDFSCODE;
     private static final Properties properties = new Properties();
@@ -44,16 +44,16 @@ public class Main {
 
         if (args.length == 0) {
             TestCase testCase;
-            Graph graph = GraphManager.getGraph(GUI_GRAPHTYPE, GUI_GRAPHSIZE, GUI_GRAPH_DEGREE);
+            int graphSize = getIntProperty(properties, "gui.graph_size", GUI_GRAPHSIZE);
+            int graphAvgDegree = getIntProperty(properties, "gui.graph_avgdegree", GUI_GRAPH_DEGREE);
+            Graph graph = GraphManager.getGraph(GUI_GRAPHTYPE, graphSize, graphAvgDegree);
             testCase = new TestCase(graph);
             Gui frame = new Gui(testCase);
             frame.setVisible(true);
             logger.log(Level.INFO, "Graphical interface started.");
         }
         else {
-            int timeout = Integer.parseInt(properties.getProperty("testcase.timeout"));
-            TestManager testManager = new TestManager(DEFAULT_INPUT_FILE, DEFAULT_OUTPUT_FILE, timeout);
-            logger.log(Level.INFO, "TestManager created.");
+            TestManager testManager = new TestManager(args[0], args.length > 1 ? args[1] : DEFAULT_OUTPUT_FILE, properties);
         }
     }
 
@@ -102,6 +102,19 @@ public class Main {
         }
 
         logger.setLevel(Level.parse(properties.getProperty("app.loglevel")));
+    }
+
+    public static int getIntProperty(Properties properties, String key, int defaultValue) {
+        if (properties.containsKey(key)) {
+            try {
+                return Integer.parseInt(properties.getProperty(key));
+            }
+            catch (NumberFormatException e) {
+                logger.log(Level.INFO, "Cannot parse integer from property value of " + key);
+            }
+        }
+        logger.log(Level.INFO, "Using default property value of " + key);
+        return defaultValue;
     }
 
     private static void endLogging() {

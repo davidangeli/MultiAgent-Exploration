@@ -1,6 +1,7 @@
 package main.java.explore.algorithm;
 
 import main.java.explore.Agent;
+import main.java.explore.graph.EdgeState;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -49,7 +50,7 @@ public interface Algorithm  {
      * @param agent The agent.
      * @return True or false.
      */
-    boolean agentStops(Graph graph, Agent agent);
+    boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent);
 
     /**
      * Returns the algorithm's unique string id.
@@ -79,7 +80,7 @@ public interface Algorithm  {
      * This method updates labels on the graph for graphical runs.
      * @param agents The agent list.
      */
-    default void updateLabels(ArrayList<Agent> agents) {
+    default void updateLabels(Graph graph, ArrayList<Agent> agents) {
         //TODO: fix this: sometimes agents get to the end
         //get nearby nodes
         HashSet<Node> affectedNodes = new HashSet<>();
@@ -108,6 +109,26 @@ public interface Algorithm  {
             Node node = it.next();
             String nodeStoreSting = node.getAttribute(STORAGEID).toString();
             addLabel(node, nodeStoreSting);
+        }
+
+        //add styles to edges
+        Iterator<Edge> edgeIt = graph.getEdgeIterator();
+        boolean isDDFS = this.getClass() == DistributedDFS.class || this.getClass() == ExtendedDDFS.class;
+        while (edgeIt.hasNext()) {
+            Edge edge = edgeIt.next();
+            //set visited state style
+            if (edge.hasAttribute(EDGESTATEID)) {
+                EdgeState state = edge.getAttribute(EDGESTATEID);
+                //in ddfs or eddfs we mark visited edges with different colors
+                if (state == EdgeState.VISITED && isDDFS) {
+                    int agentId = (int)edge.getAttribute(LABELID) % agents.size();
+                    edge.setAttribute("ui.style", DistributedDFS.EDGESTYLES[agentId]);
+                }
+                else {
+                    edge.setAttribute("ui.style", state.style);
+                }
+            }
+
         }
     }
 

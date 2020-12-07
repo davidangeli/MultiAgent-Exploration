@@ -15,21 +15,25 @@ public class RotorRouter implements Algorithm {
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
         agents.clear();
-        //startnode
-        //int startNodeIndex = graph.getNodeCount() - 1;
-        int startNodeIndex = DEFAULT_START_INDEX;
-        Node startNode = graph.getNode(startNodeIndex);
-        GraphManager.setStartNodeStyle(graph, startNodeIndex);
         //creates storage per Nodes
         graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new RRStorage()));
-        //agents
+
+        //(re)set start nodes and edges style and labels
+        int[] startNodeIndexes = {DEFAULT_START_INDEX};
+        GraphManager.resetGraph(graph, startNodeIndexes);
+
+        //create agents
+        Node startNode = graph.getNode(startNodeIndexes[0]);
         for (int i =0; i < agentNum; i++) {
             Agent agent = new Agent(startNode);
             agents.add(agent);
             evaluateOnArrival(agent, null);
         }
         //set edges to gray
-        graph.getEdgeSet().forEach(EdgeState.UNVISITED::setEdge);
+        graph.getEdgeSet().forEach(e -> {
+            EdgeState.UNVISITED.setEdge(e);
+            e.removeAttribute(LABELID);
+        });
     }
 
     @Override
@@ -55,12 +59,12 @@ public class RotorRouter implements Algorithm {
     }
 
     @Override
-    public boolean agentStops(Graph graph, Agent agent) {
-        boolean edgesExplored = graph.getEdgeSet()
+    public boolean agentStops(Graph graph, ArrayList<Agent> agents, Agent agent) {
+        return graph.getEdgeSet()
                 .stream()
                 .allMatch(e -> e.getAttribute(EDGESTATEID) == EdgeState.VISITED);
-        boolean agentHome = agent.getCurrentNode().getIndex() == (int)graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX);
-        return edgesExplored && agentHome;
+        //boolean agentHome = agent.getCurrentNode().getIndex() == ((int[])graph.getAttribute(GraphManager.GRAPH_STARTNODE_INDEX))[0];
+        //return edgesExplored && agentHome;
     }
 
     public static class RRMemory {

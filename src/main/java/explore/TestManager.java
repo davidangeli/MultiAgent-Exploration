@@ -1,8 +1,6 @@
 package main.java.explore;
 
-import main.java.explore.algorithm.Algorithm;
-import main.java.explore.algorithm.MultiAgentDFS;
-import main.java.explore.algorithm.RotorRouter;
+import main.java.explore.algorithm.*;
 import main.java.explore.graph.GraphManager;
 import main.java.explore.graph.GraphType;
 import org.graphstream.graph.Graph;
@@ -14,39 +12,58 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class TestManager {
     public static final String ROTORROUTERCODE = "rr";
     public static final String MULTIAGENTDFSCODE = "madfs";
+    public static final String MULTIAGENTDDFSCODE = "maddfs";
+    public static final String MULTIAGENTEDDFSCODE = "maeddfs";
     private static final char COMMENTLINE = '#';
 
+    private final Properties properties;
+    private final HashMap<TestCase, Future<int[]>> testCases = new HashMap<>();
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
-    private static final HashMap<TestCase, Future<int[]>> testCases = new HashMap<>();
 
-    public TestManager(String inputFile, String outputFile, int timeout) {
+    public TestManager(String inputFile, String outputFile, Properties properties) {
+        this.properties = properties;
         logger.setUseParentHandlers(true);
-        readTestCaseFile(inputFile);
-        runTests(timeout);
+
+        //read input file
+        try {
+            readTestCaseFile(inputFile);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Test cases input file could not be opened.");
+            return;
+        }
+
+        //check output file, write headers
+        try {
+            printResultsHeaders(outputFile);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Test cases output file could not be opened.");
+            return;
+        }
+
+        logger.log(Level.INFO, "TestManager created.");
+
+        //do the things
+        runTests();
         printResults(outputFile);
     }
 
-    public TestManager(String inputFile, int timeout) {
-        logger.setUseParentHandlers(true);
-        readTestCaseFile(inputFile);
-        runTests(timeout);
-        printResults();
-    }
+    private void runTests() {
+        int timeout = Main.getIntProperty(properties, "testcase.timeout", Main.TESTCASE_TIMEOUT);
 
-    private void runTests(int timeout) {
         ExecutorService executorService = Executors.newCachedThreadPool();
         testCases.entrySet().forEach(tc -> tc.setValue(executorService.submit(tc.getKey())));
         logger.log(Level.INFO, "Submitted cases to the executor.");
 
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(timeout, TimeUnit.MILLISECONDS)) {
+            if (!executorService.awaitTermination(timeout, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
                 logger.log(Level.INFO, "Executor shutdownNow() called.");
             }
@@ -56,17 +73,24 @@ public class TestManager {
         logger.log(Level.INFO, "Executor done.");
     }
 
+    private void printResultsHeaders(String outputFile) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+        writer.write("Testcase;Algorithm;Agents;GraphType;GraphSize;Nodes;AvgDegree;Edges;Repeats;allEdgeVisited;minSteps;maxSteps;avgSteps;deviation");
+        writer.newLine();
+        writer.flush();
+        writer.close();
+        logger.log(Level.INFO, "Results headers written into the output file.");
+    }
+
     private void printResults(String outputFile) {
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            writer.write("Testcase;Algorithm;Agents;GraphType;Nodes;Edges;Repeats;minSteps;maxSteps;avgSteps;deviation");
-            writer.newLine();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, true))) {
             testCases.forEach((tc, f) -> {
 
                 try {
                     if (f.isDone()) {
                         int[] result = f.get();
-                        writer.write(tc + ";" + result[0] + ";" + result[1] + ";" + result[2] + ";" + result[3]);
+                        writer.write(tc + ";" + result[0] + ";" + result[1] + ";" + result[2] + ";" + result[3] + ";" + result[4]);
                     }
                     else {
                         writer.write(tc + ";timeout");
@@ -86,48 +110,32 @@ public class TestManager {
         }
     }
 
-    private void printResults() {
-        testCases.forEach((tc, f) -> {
-            String result = "exception";
-            try {
-                result = f.isDone() ? Arrays.toString(f.get()) : "timeout";
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+    private void readTestCaseFile (String fileName) throws IOException {
+        int minDegree = Main.getIntProperty(properties, "testcase.min_degree", Main.TESTCASE_MINDEGREE);
+        int maxDegree = Main.getIntProperty(properties, "testcase.max_degree", Main.TESTCASE_MAXDEGREE);
+        Stream<String> stream = Files.lines(Paths.get(fileName));
+        stream.forEach((line) -> {
+            if (line.isBlank() || line.charAt(0) == COMMENTLINE) {
+                return;
             }
-
-            logger.log(Level.INFO, "{0} results: {1} ", new Object[]{tc, result});
+            try {
+                parseInputLine(line, minDegree, maxDegree);
+                logger.log(Level.INFO, "Test cases added: {0}", new Object[]{line});
+            }
+            catch (Exception ex) {
+                logger.log(Level.WARNING, "Test cases parse error: {0}: {1}", new Object[]{line, ex.getMessage()});
+            }
         });
+        stream.close();
     }
 
-    private void readTestCaseFile (String fileName) {
-        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            stream.forEach((line) -> {
-                if (line.length()>1 && line.charAt(0) == COMMENTLINE) {
-                    return;
-                }
-                try {
-                    parseInputLine(line);
-                    logger.log(Level.INFO, "Test cases added: {0}", new Object[]{line});
-                }
-                catch (Exception ex) {
-                    logger.log(Level.WARNING, "Test cases parse error: {0}: {1}", new Object[]{line, ex.getMessage()});
-                }
-            });
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Test cases file could not be opened.");
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            logger.log(Level.SEVERE, "Test cases file parameter error.");
-        }
-    }
-
-    private void parseInputLine (String line) throws IllegalArgumentException, InputMismatchException, NullPointerException {
+    private void parseInputLine (String line, int minDegree, int maxDegree) throws IllegalArgumentException, InputMismatchException, NullPointerException {
         Scanner sc = new Scanner (line);
 
         GraphType graphType = GraphManager.getGraphType(sc.next());
         //range: either a number x,x,1 or a range x,y,s
         int[] sizeRange = parseRange(sc.next());
-        int[] degreeRange = parseRange(sc.next());
+        int[] degreeRange = parseRange(sc.next(), minDegree, Integer.min(maxDegree, sizeRange[1]-1));
         Algorithm algorithm = selectAlgorithm(sc.next());
         int[] agentRange = parseRange(sc.next());
         int repeats = sc.nextInt();
@@ -150,7 +158,20 @@ public class TestManager {
      * @return A 3 long integer array.
      * @throws NumberFormatException If the token does not have the expected integer representations.
      */
-    private int[] parseRange (String token) throws NumberFormatException {
+    private int[] parseRange(String token) throws NumberFormatException {
+        return parseRange(token, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Reads integer range information (min, max, step) from a String token.
+     * @param token String input with integer parameters
+     * @param minBound Specifies minimum acceptable value for this range.
+     * @param maxBound Specifies minimum acceptable value for this range.
+     * @return A 3 long integer array.
+     * @throws NumberFormatException If the token does not have the expected integer representations.
+     * @throws IllegalArgumentException If the value read does not fit between minBound and maxBound.
+     */
+    private int[] parseRange (String token, int minBound, int maxBound) throws IllegalArgumentException {
 
         int[] result = new int[3];
         String RANGESEPARATOR = "-";
@@ -160,6 +181,9 @@ public class TestManager {
         String[] range = parts[0].split(RANGESEPARATOR);
         result[0] = Integer.parseInt(range[0]);
         result[1] = Integer.parseInt(range[range.length-1]);
+        if (result[0] < minBound || result[1] > maxBound) {
+            throw new IllegalArgumentException("Parameter value do not fit into min and max bounds.");
+        }
         result[2] = parts.length > 1 ? Integer.parseInt(parts[1]) : 1;
 
         return result;
@@ -172,10 +196,16 @@ public class TestManager {
                 result = new RotorRouter();
                 break;
             case MULTIAGENTDFSCODE:
-                result = new MultiAgentDFS();
+                result = new DFS();
+                break;
+            case MULTIAGENTDDFSCODE:
+                result = new DistributedDFS();
+                break;
+            case MULTIAGENTEDDFSCODE:
+                result = new ExtendedDDFS();
                 break;
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("No match for this algorithm code:" + argument);
         }
         return result;
     }

@@ -3,7 +3,10 @@ package main.java.explore.graph;
 import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.measure.ConnectivityMeasure;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
+
+import static main.java.explore.algorithm.Algorithm.LABELID;
 
 public class GraphManager {
 
@@ -28,7 +31,7 @@ public class GraphManager {
         return ConnectivityMeasure.isKEdgeConnected(graph,1);
     }
 
-    public static void resetGraph (Graph graph) {
+    public static void regenerateGraph (Graph graph) {
         GraphType graphType = graph.getAttribute(GRAPH_TYPE_LABEL);
         int graphSize = graph.getAttribute(GRAPH_SIZE_LABEL);
         int avgDegree = graph.getAttribute(GRAPH_DEGREE_LABEL);
@@ -45,6 +48,7 @@ public class GraphManager {
                 return;
             case LOBSTER:
             case RANDOM:
+            case COMPLETE:
             default:
                 break;
         }
@@ -66,14 +70,37 @@ public class GraphManager {
         setGraphAttributes(graph, graphType, graphSize, avgDegree);
     }
 
-    public static void setStartNodeStyle(Graph graph, int nodeIndex) {
-        Object startNodeIndexObject = graph.getAttribute(GRAPH_STARTNODE_INDEX);
-        if (startNodeIndexObject != null) {
-            int startNodeIndex = graph.getAttribute(GRAPH_STARTNODE_INDEX);
-            graph.getNode(startNodeIndex).addAttribute("ui.style", "size: 10;");
+    public static void resetGraph (Graph graph, int[] startNodeIndexes) {
+        //set edges to unvisited and remove labels
+        graph.getEdgeSet().forEach(e -> {
+            EdgeState.UNVISITED.setEdge(e);
+            e.removeAttribute(LABELID);
+        });
+        setStartNodeStyle(graph, startNodeIndexes);
+    }
+
+    private static void setStartNodeStyle(Graph graph, int[] nodeIndexes) {
+        //clear previous start node data and reset nodes
+        if (graph.hasAttribute(GRAPH_STARTNODE_INDEX)) {
+            int[] startNodeIndexes = (int[]) graph.getAttribute(GRAPH_STARTNODE_INDEX);
+            for (int startNodeIndex: startNodeIndexes) {
+                setStartNodeStyle(graph.getNode(startNodeIndex), false);
+            }
         }
-        graph.addAttribute(GRAPH_STARTNODE_INDEX, nodeIndex);
-        graph.getNode(nodeIndex).addAttribute("ui.style", "size: 20;");
+        //set new ones
+        graph.addAttribute(GRAPH_STARTNODE_INDEX, (Object) nodeIndexes);
+        for (int startNodeIndex: nodeIndexes) {
+            setStartNodeStyle(graph.getNode(startNodeIndex), true);
+        }
+    }
+
+    private static void setStartNodeStyle(Node node, boolean on) {
+        if (on) {
+            node.setAttribute("ui.style", "size: 20;");
+        }
+        else {
+            node.setAttribute("ui.style", "size: 10;");
+        }
     }
 
     private static void createTutorialGraph(Graph graph) {
