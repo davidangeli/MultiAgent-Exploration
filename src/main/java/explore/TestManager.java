@@ -56,8 +56,11 @@ public class TestManager {
 
     private void runTests() {
         int timeout = Main.getIntProperty(properties, "testcase.timeout", Main.TESTCASE_TIMEOUT);
+        int cores = Runtime.getRuntime().availableProcessors();
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
+        ExecutorService executorService = Executors.newFixedThreadPool(cores);
+        logger.log(Level.INFO, "Executor created with " + cores + " threads.");
+
         testCases.entrySet().forEach(tc -> tc.setValue(executorService.submit(tc.getKey())));
         logger.log(Level.INFO, "Submitted cases to the executor.");
 
