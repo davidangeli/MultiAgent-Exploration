@@ -83,18 +83,20 @@ public class TestManager {
     }
 
     private void printResults(String outputFile) {
+        int[] dummyResult = new int[5];
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, true))) {
             testCases.forEach((tc, f) -> {
 
                 try {
+                    int[] result;
                     if (f.isDone()) {
-                        int[] result = f.get();
-                        writer.write(tc + ";" + result[0] + ";" + result[1] + ";" + result[2] + ";" + result[3] + ";" + result[4]);
+                        result = f.get();
                     }
                     else {
-                        writer.write(tc + ";timeout");
+                        result = dummyResult;
                     }
+                    writer.write(tc + ";" + result[0] + ";" + result[1] + ";" + result[2] + ";" + result[3] + ";" + result[4]);
                     writer.newLine();
 
                 } catch (InterruptedException | ExecutionException | IOException e) {
