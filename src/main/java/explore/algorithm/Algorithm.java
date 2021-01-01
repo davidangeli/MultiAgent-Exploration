@@ -2,9 +2,11 @@ package main.java.explore.algorithm;
 
 import main.java.explore.Agent;
 import main.java.explore.graph.EdgeState;
+import main.java.explore.graph.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,7 +15,7 @@ import java.util.LinkedHashSet;
 /**
  * Inteface declaring expected methods for any exploration algorithms.
  */
-public interface Algorithm  {
+public interface Algorithm<Memory, Storage>  {
 
     Object STORELOCK = new Object();
     String LABELID = "ui.label";
@@ -24,9 +26,39 @@ public interface Algorithm  {
     /**
      * Initializes the graph and the agents.
      * @param graph The graph.
+     * @param agents The agents.
      * @param agentNum The number of agents to have.
      */
-    void init(Graph graph, ArrayList<Agent> agents, int agentNum);
+    void init(Graph graph, ArrayList<Agent> agents, int agentNum)  throws Exception;
+
+    /**
+     * Initializes the graph and the agents.
+     * @param graph The graph.
+     * @param agents The agents.
+     * @param agentNum The number of agents to have.
+     */
+    default void init(Graph graph, ArrayList<Agent> agents, int agentNum, Class<Memory> mClass, Class<Storage> sClass, int[] startNodeIndexes) throws Exception {
+
+        assert startNodeIndexes.length > 0;
+
+        agents.clear();
+        //creates storage per Nodes
+        for (Node n : graph.getNodeSet()) {
+            n.setAttribute(STORAGEID, sClass.getDeclaredConstructor().newInstance());
+        }
+
+        //(re)set start nodes and edges style and labels
+        GraphManager.resetGraph(graph, startNodeIndexes);
+
+        //create agents
+        for (int i = 0; i < agentNum; i++) {
+            Node startNode = graph.getNode(startNodeIndexes[i >= startNodeIndexes.length ? 0 : i]);
+            Agent agent = new Agent(startNode);
+            agent.setMemory(mClass.getDeclaredConstructor().newInstance());
+            agents.add(agent);
+            evaluateOnArrival(agent, null);
+        }
+    }
 
     /**
      * Evaluates situation for an agent on a new node.
@@ -137,4 +169,5 @@ public interface Algorithm  {
         labels.add(label);
         node.setAttribute(LABELID, labels);
     }
+
 }

@@ -3,7 +3,6 @@ package main.java.explore.algorithm;
 import lombok.Data;
 import main.java.explore.Agent;
 import main.java.explore.graph.EdgeState;
-import main.java.explore.graph.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 
@@ -12,7 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class DistributedDFS implements Algorithm {
+public class DistributedDFS implements Algorithm<DistributedDFS.MaDDfsMemory, DistributedDFS.MaDDfsStorage> {
 
     //for graphical representation, territories are marked with different colors
     //there should not be more than 7 agents ever in gui
@@ -27,26 +26,13 @@ public class DistributedDFS implements Algorithm {
     };
 
     @Override
-    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
-        agents.clear();
-        //creates storage per Nodes
-        graph.getNodeSet().forEach(n -> n.setAttribute(STORAGEID, new MaDDfsStorage()));
-
-        //(re)set start nodes and edges style and labels
+    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) throws Exception {
         Random random = new Random();
         int[] startNodeIndexes = new int[agentNum];
         for (int i=0; i< startNodeIndexes.length; i++) {
             startNodeIndexes[i] = random.nextInt(graph.getNodeCount());
         }
-        GraphManager.resetGraph(graph, startNodeIndexes);
-
-        //create agents
-        for (int i =0; i < agentNum; i++) {
-            Agent agent = new Agent(graph.getNode(startNodeIndexes[i]));
-            agent.setMemory(new MaDDfsMemory());
-            agents.add(agent);
-            evaluateOnArrival(agent, null);
-        }
+        Algorithm.super.init(graph, agents, agentNum, MaDDfsMemory.class, MaDDfsStorage.class, startNodeIndexes);
     }
 
     @Override
