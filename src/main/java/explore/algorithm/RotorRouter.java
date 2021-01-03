@@ -12,8 +12,7 @@ public class RotorRouter implements Algorithm<RotorRouter.RRMemory, RotorRouter.
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) throws Exception {
-        int[] startNodeIndexes = {DEFAULT_START_INDEX};
-        Algorithm.super.init(graph, agents, agentNum, RRMemory.class, RRStorage.class, startNodeIndexes);
+        Algorithm.super.init(graph, agents, agentNum, RRMemory.class, RRStorage.class);
     }
 
     @Override

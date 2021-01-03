@@ -22,7 +22,7 @@ public class TestCase implements Callable<int[]> {
     private final int id;
     private final Graph graph;
     private final ArrayList<Agent> agents = new ArrayList<>();
-    private Algorithm algorithm;
+    private Algorithm<?, ?> algorithm;
     private boolean paused = true;
     private Thread thread = new Thread();
     private JLabel stepCountLabel;
@@ -32,9 +32,9 @@ public class TestCase implements Callable<int[]> {
 
     private static final Logger logger = Logger.getLogger(TestCase.class.getName());
 
-    private AtomicBoolean stopped = new AtomicBoolean(true);
+    private final AtomicBoolean stopped = new AtomicBoolean(true);
 
-    public TestCase(Graph graph, Algorithm algorithm, int agentNum, int repeats) {
+    public TestCase(Graph graph, Algorithm<?, ?> algorithm, int agentNum, int repeats) {
         logger.setUseParentHandlers(true);
         this.id = ++idc;
         this.graph = graph;
@@ -57,7 +57,7 @@ public class TestCase implements Callable<int[]> {
      * @param agentNum Number of agents.
      * @param regenerateGraph Boolean setting if the graph should be reset. In case of new graph type, the graph will be reset anyways.
      */
-    public synchronized void init(GraphType graphType, Algorithm algorithm, int agentNum, boolean regenerateGraph) {
+    public synchronized void init(GraphType graphType, Algorithm<?, ?> algorithm, int agentNum, boolean regenerateGraph) {
         assert(runsInGui);
         assert(stopped.get() || paused);
         GraphType oldGrapType = graph.getAttribute(GraphManager.GRAPH_TYPE_LABEL);
@@ -76,7 +76,12 @@ public class TestCase implements Callable<int[]> {
             GraphManager.regenerateGraph(graph);
         }
         paused = runsInGui;
-        algorithm.init(graph, agents, agentNum);
+        try {
+            algorithm.init(graph, agents, agentNum);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "TestCase" + id + " resetting: algorithm init failed.");
+            e.printStackTrace();
+        }
         stepCount = 0;
 
         if (runsInGui) {

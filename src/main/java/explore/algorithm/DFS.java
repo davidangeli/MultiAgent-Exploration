@@ -16,8 +16,7 @@ public class DFS implements Algorithm<DFS.MaDfsMemory, DFS.MaDfsStorage> {
 
     @Override
     public void init(Graph graph, ArrayList<Agent> agents, int agentNum) throws Exception {
-        int[] startNodeIndexes = {DEFAULT_START_INDEX};
-        Algorithm.super.init(graph, agents, agentNum, MaDfsMemory.class, MaDfsStorage.class, startNodeIndexes);
+        Algorithm.super.init(graph, agents, agentNum, MaDfsMemory.class, MaDfsStorage.class);
     }
 
     @Override
