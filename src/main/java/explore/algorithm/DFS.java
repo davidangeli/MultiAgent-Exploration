@@ -3,10 +3,8 @@ package main.java.explore.algorithm;
 import lombok.Data;
 import main.java.explore.Agent;
 import main.java.explore.graph.EdgeState;
-import main.java.explore.graph.GraphManager;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,25 +12,11 @@ import java.util.stream.Collectors;
 /**
  * This algorithm uses no agent memory, but storage on each node.
  */
-public class DFS implements Algorithm {
+public class DFS implements Algorithm<DFS.MaDfsMemory, DFS.MaDfsStorage> {
 
     @Override
-    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) {
-        agents.clear();
-        //creates storage per Nodes
-        graph.getNodeSet().forEach(n -> n.addAttribute(STORAGEID, new MaDfsStorage()));
-
-        //(re)set start nodes and edges style and labels
-        int[] startNodeIndexes = {DEFAULT_START_INDEX};
-        GraphManager.resetGraph(graph, startNodeIndexes);
-
-        //create agents
-        Node startNode = graph.getNode(startNodeIndexes[0]);
-        for (int i =0; i < agentNum; i++) {
-            Agent agent = new Agent(startNode);
-            agents.add(agent);
-            evaluateOnArrival(agent, null);
-        }
+    public void init(Graph graph, ArrayList<Agent> agents, int agentNum) throws Exception {
+        Algorithm.super.init(graph, agents, agentNum, MaDfsMemory.class, MaDfsStorage.class);
     }
 
     @Override
