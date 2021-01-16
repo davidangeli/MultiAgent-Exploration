@@ -59,7 +59,7 @@ public class TestManager {
         int cores = Runtime.getRuntime().availableProcessors();
 
         ExecutorService executorService = Executors.newFixedThreadPool(cores);
-        logger.log(Level.INFO, "Executor created with " + cores + " threads.");
+        logger.log(Level.INFO, "Executor created with " + cores + " threads, " + timeout + "s timeout.");
 
         testCases.entrySet().forEach(tc -> tc.setValue(executorService.submit(tc.getKey())));
         logger.log(Level.INFO, "Submitted cases to the executor.");
@@ -141,7 +141,7 @@ public class TestManager {
         //range: either a number x,x,1 or a range x,y,s
         int[] sizeRange = parseRange(sc.next());
         int[] degreeRange = parseRange(sc.next(), minDegree, Integer.min(maxDegree, sizeRange[1]-1));
-        Algorithm algorithm = selectAlgorithm(sc.next());
+        Algorithm<?, ?> algorithm = selectAlgorithm(sc.next());
         int[] agentRange = parseRange(sc.next());
         int repeats = sc.nextInt();
 
@@ -194,8 +194,8 @@ public class TestManager {
         return result;
     }
 
-    public static Algorithm selectAlgorithm (String argument) throws IllegalArgumentException {
-        Algorithm result;
+    public static Algorithm<?, ?> selectAlgorithm (String argument) throws IllegalArgumentException {
+        Algorithm<?, ?> result;
         switch (argument.toLowerCase()) {
             case ROTORROUTERCODE:
                 result = new RotorRouter();

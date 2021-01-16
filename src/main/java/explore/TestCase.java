@@ -126,7 +126,11 @@ public class TestCase implements Callable<int[]> {
 
             //loop
             while (!stopped.get()) {
-                if (!paused) {
+                if (Thread.currentThread().isInterrupted()) {
+                    i = repeats;
+                    stopped.set(true);
+                }
+                else if (!paused) {
                     tick();
                 }
                 //InterruptedException is propagated
@@ -145,7 +149,7 @@ public class TestCase implements Callable<int[]> {
             showStepCount();
         }
 
-        logger.log(Level.INFO, "TestCase" + id + " done.");
+        logger.log(Level.INFO, "TestCase" + id + (Thread.currentThread().isInterrupted() ? " interrupted." : " done."));
         return getStatistics(explorationCheck, results);
     }
 
